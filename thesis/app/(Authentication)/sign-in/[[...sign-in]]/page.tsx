@@ -16,95 +16,114 @@ import { Label } from '@/components/ui/label'
 import { Icons } from '@/components/ui/icons'
 import logoImage from "@/assets/images/logosaas.png"
 import Image from 'next/image'
+import doctor from "@/assets/images/doctor.jpg";
 
 
 
 
 export default function SignInPage() {
   return (
-    <div className="h-screen grid w-full grow items-center px-4 sm:justify-center">
+    <div className="min-h-screen ">
       <SignIn.Root>
         <Clerk.Loading>
           {(isGlobalLoading) => (
             <>
               <SignIn.Step name="start">
-                <Card className="w-full sm:w-96">
-                  <CardHeader className='flex flex-col items-center justify-center gap-2'>
-                    <div className="relative">
-                      <div className="absolute w-full top-2 bottom-0 bg-[linear-gradient(to_right,#F87BFF,#FB92CF,#FFDD9B,#C2F0B1,#2FD8FE)] blur-md"></div>
-                      <Image
-                        src={logoImage}
-                        alt="Picture of the author"
-                        className="size-10 relative"
-                      />
-                    </div>
-                    <CardTitle>
-                      Sign in 
-                    </CardTitle>
-                    <CardDescription>
-                      Welcome back! Please sign in to continue
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-y-4">
-                    <div className="grid grid-cols-1 gap-x-4">
-                      <Clerk.Connection name="google" asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                          disabled={isGlobalLoading}
-                        >
-                          <Clerk.Loading scope="provider:google">
-                            {(isLoading) =>
-                              isLoading ? (
-                                <Icons.spinner className="size-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Icons.google className="mr-2 size-4" />
-                                  Google
-                                </>
-                              )
-                            }
-                          </Clerk.Loading>
-                        </Button>
-                      </Clerk.Connection>
-                    </div>
-                    <p className="flex items-center gap-x-3 text-sm text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-                      or
-                    </p>
-                    <Clerk.Field name="identifier" className="space-y-2">
-                      <Clerk.Label asChild>
-                        <Label>Email address</Label>
-                      </Clerk.Label>
-                      <Clerk.Input type="email" required asChild>
-                        <Input />
-                      </Clerk.Input>
-                      <Clerk.FieldError className="block text-sm text-destructive" />
-                    </Clerk.Field>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="grid w-full gap-y-4">
-                      <SignIn.Action submit asChild>
-                        <Button disabled={isGlobalLoading}>
-                          <Clerk.Loading>
-                            {(isLoading) => {
-                              return isLoading ? (
-                                <Icons.spinner className="size-4 animate-spin" />
-                              ) : (
-                                "Continue"
-                              );
-                            }}
-                          </Clerk.Loading>
-                        </Button>
-                      </SignIn.Action>
+                <Card className=" h-screen grid grid-cols-1 md:grid-cols-2">
+                  <div className="flex flex-col justify-center max-w-2xl container mx-auto ">
+                    <CardHeader className="flex flex-col items-center justify-center gap-2">
+                      <div className="relative">
+                        <div className="absolute w-full top-2 bottom-0 bg-[linear-gradient(to_right,#F87BFF,#FB92CF,#FFDD9B,#C2F0B1,#2FD8FE)] blur-md"></div>
+                        <Image
+                          src={logoImage}
+                          alt="Picture of the author"
+                          className="size-10 relative"
+                        />
+                      </div>
+                      <CardTitle>Sign in</CardTitle>
+                      <CardDescription>
+                        Welcome back! Please sign in to continue
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-y-4 ">
+                      <div className="grid grid-cols-1 gap-x-4 ">
+                        <Clerk.Connection name="google" asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            type="button"
+                            disabled={isGlobalLoading}
+                          >
+                            <Clerk.Loading scope="provider:google">
+                              {(isLoading) =>
+                                isLoading ? (
+                                  <Icons.spinner className="size-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Icons.google className="mr-2 size-4" />
+                                    Google
+                                  </>
+                                )
+                              }
+                            </Clerk.Loading>
+                          </Button>
+                        </Clerk.Connection>
+                      </div>
+                      <p className="flex items-center gap-x-3 text-sm text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+                        or
+                      </p>
+                      <Clerk.Field name="identifier" className="space-y-2 ">
+                        <Clerk.Label asChild>
+                          <Label>Email address</Label>
+                        </Clerk.Label>
+                        <Clerk.Input type="email" required asChild>
+                          <Input />
+                        </Clerk.Input>
+                        <Clerk.FieldError className="block text-sm text-destructive" />
+                      </Clerk.Field>
 
-                      <Button variant="link" size="sm" asChild>
-                        <Link href="/sign-up">
-                          Don&apos;t have an account? Sign up
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardFooter>
+                      <Clerk.Field name="password" className="space-y-2 ">
+                        <Clerk.Label asChild>
+                          <Label>password</Label>
+                        </Clerk.Label>
+                        <Clerk.Input type="password" required asChild>
+                          <Input />
+                        </Clerk.Input>
+                        <Clerk.FieldError />
+                      </Clerk.Field>
+                    </CardContent>
+                    <CardFooter>
+                      <div className="grid w-full gap-y-4 ">
+                        <SignIn.Action submit asChild>
+                          <Button disabled={isGlobalLoading}>
+                            <Clerk.Loading>
+                              {(isLoading) => {
+                                return isLoading ? (
+                                  <Icons.spinner className="size-4 animate-spin" />
+                                ) : (
+                                  "Continue"
+                                );
+                              }}
+                            </Clerk.Loading>
+                          </Button>
+                        </SignIn.Action>
+
+                        <Button variant="link" size="sm" asChild>
+                          <Link href="/sign-up">
+                            Don&apos;t have an account? Sign up
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </div>
+                  <div className="hidden md:block relative h-full min-h-[400px]">
+                    <Image
+                      src={doctor}
+                      fill
+                      alt={"Medical"}
+                      className="object-cover"
+                    />
+                  </div>
                 </Card>
               </SignIn.Step>
 
