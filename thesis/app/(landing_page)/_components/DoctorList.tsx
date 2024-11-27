@@ -27,27 +27,30 @@ export default DoctorList
 
 function DisplayDoctors(){
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {doctors.slice(0, 10).map((doctor) => (
-          <Card key={doctor._id} className="overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-105">
-            <CardHeader className="p-0">
-              <div className="relative aspect-square bg-transparent bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <Image 
-                  src={doctor.image} 
-                  alt={doctor.name} 
-                  layout="fill" 
-                  objectFit="cover"
-                />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {doctors.slice(0, 10).map((doctor) => (
+        <Card key={doctor._id} className="overflow-hidden group cursor-pointer">
+          <div className="relative aspect-square">
+            <Image 
+              src={doctor.image} 
+              alt={doctor.name} 
+              layout="fill" 
+              objectFit="cover"
+            />
+            <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+              <div className="text-center flex flex-col items-center justify-center">
+              <Badge className="text-xs mb-2 font-semibold truncate">{doctor.name}</Badge>
+                <Badge variant="outline" className="text-xs">Fees: ${doctor.fees}</Badge>
               </div>
-            </CardHeader>
-            <CardContent className="p-3">
-              <CardTitle className="font-semibold text-sm mb-1 truncate">{doctor.name}</CardTitle>
-              <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
-              <p className="text-sm text-muted-foreground mb-2 truncate">{doctor.degree} • {doctor.experience} Experience</p>
-              <p className="text-xs text-muted-foreground">Fees: ${doctor.fees}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          </div>
+          <CardContent className="p-3">
+            <h3 className="font-semibold text-sm mb-1 truncate">{doctor.name}</h3>
+            <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
+            <p className="text-xs text-muted-foreground">{doctor.experience} exp.</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
     );
 }
