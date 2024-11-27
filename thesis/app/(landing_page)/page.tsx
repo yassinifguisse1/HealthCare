@@ -1,3 +1,4 @@
+import DoctorList from "./_components/DoctorList";
 import Hero from "./_components/Hero";
 import LogoTocker from "./_components/LogoTocker";
 import Navbar from "./_components/Navbar";
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero/>
       <LogoTocker/>
       <SpecialityMenu/>
+      <DoctorList/>
     </>
   );
 }

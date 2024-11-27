@@ -47,8 +47,8 @@ const Navbar = () => {
 export default Navbar
 function DesktopNavbar(){
   return (
-    <div className=" hidden border-separate border-b transition-all duration-300 md:block z-50 fixed top-0 w-full ">
-      <nav className="container mx-auto flex items-center justify-between h-[70px] min-h-[70px] transition-colors duration-300">
+    <div className=" hidden border-separate border-b transition-all duration-300 md:block z-50 fixed top-0 left-0 right-0 w-full bg-transparent bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="container mx-auto w-full flex items-center justify-between h-[70px] min-h-[70px] transition-colors duration-300 ">
         {/* Logo */}
         <div className="relative">
           <div className="absolute w-full top-2 bottom-0 bg-[linear-gradient(to_right,#F87BFF,#FB92CF,#FFDD9B,#C2F0B1,#2FD8FE)] blur-md"></div>

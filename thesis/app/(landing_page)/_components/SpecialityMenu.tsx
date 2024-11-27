@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 const specialityData = [
     {src: Dermatologist , speciality:'Dermatologist'},
     {src: Gastroenterologist , speciality:'Gastroenterologist'},
-    {src: General_physician , speciality:'General_physician'},
+    {src: General_physician , speciality:'General physician'},
     {src: Gynecologist , speciality:'Gynecologist'},
     {src: Neurologist , speciality:'Neurologist'},
     {src: Pediatricians , speciality:'Pediatricians'},
