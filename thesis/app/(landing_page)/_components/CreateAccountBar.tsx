@@ -19,7 +19,7 @@ const CreateAccountBar = () => {
               Create Account
             </Button>
           </div>
-          <div className="w-full md:w-1/3 order-1 md:order-2 hidden sm:block">
+          <div className="w-full md:w-1/3 order-1 md:order-2 hidden md:block">
             <div className="relative w-full aspect-square max-w-[300px] md:max-w-none mx-auto">
               <Image
                 src={DoctorImage}

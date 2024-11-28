@@ -22,10 +22,9 @@ import {
 
 const items = [
   {labe : "Home" , link : "/"},
-  {labe : "Find a provider" , link : "/story"},
-  {labe : "Find care" , link : "/saves"},
-  // {labe : "Location" , link : "/saves"},
-  {labe : "Medical Service" , link : "/saves"}
+  {labe : "All Doctors" , link : "/Doctors"},
+  {labe : "About" , link : "/about"},
+  {labe : "Contact" , link : "/contact"}
 ]
 
 type NavbarItemType = {
@@ -47,7 +46,7 @@ const Navbar = () => {
 export default Navbar
 function DesktopNavbar(){
   return (
-    <div className=" hidden border-separate border-b transition-all duration-300 md:block z-50 fixed top-0 left-0 right-0 w-full bg-transparent bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className=" hidden border-separate border-b transition-all duration-300 md:block z-50 fixed top-0 left-0 right-0 w-full  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/20">
       <nav className="container mx-auto w-full flex items-center justify-between h-[70px] min-h-[70px] transition-colors duration-300 ">
         {/* Logo */}
         <div className="relative">

@@ -36,6 +36,10 @@ import General_physician from './General_physician.svg'
 import Gynecologist from './Gynecologist.svg'
 import Neurologist from './Neurologist.svg'
 import Pediatricians from './Pediatricians.svg'
+import Head_of_Gastroenterologist from "@/assets/assets_frontend/Head_of_Gastroenterologist.jpg";
+import Lead_Surgeon from "@/assets/assets_frontend/Lead_Surgeon.jpg";
+import Head_of_Cardiology from "@/assets/assets_frontend/Head_of_Cardiology.jpg";
+import Chief_Medical_Officer from "@/assets/assets_frontend/Chief_Medical_Officer.jpg";
 
 
 export const assets = {
@@ -296,4 +300,30 @@ export const doctors = [
             line2: 'Circle, Ring Road, London'
         }
     },
+]
+export const teams=[
+    {
+        _id: 'team1',
+        name: 'Dr. Michael Foster',
+        role:"Chief Medical Officer",
+        image: Chief_Medical_Officer ,
+    },
+    {
+        _id: 'team2',
+        name: 'Dr. Sarah Chen',
+        role:"Head of Cardiology",
+        image: Lead_Surgeon,
+    },
+    {
+        _id: 'team3',
+        name: 'Dr. James Wilson',
+        role:"Lead Surgeon",
+        image: Head_of_Cardiology,
+    },
+    {
+        _id: 'team4',
+        name: 'Dr. Emily Parker',
+        role:"Head of Gastroenterologist",
+        image: Head_of_Gastroenterologist,
+    }
 ]

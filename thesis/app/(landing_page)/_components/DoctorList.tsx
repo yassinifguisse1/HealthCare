@@ -1,7 +1,7 @@
 import React from 'react'
 import { doctors } from '@/assets/assets_frontend/assets'
 import Image from 'next/image'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {Button} from '@/components/ui/button'
 
@@ -45,6 +45,10 @@ function DisplayDoctors(){
             </div>
           </div>
           <CardContent className="p-3">
+            <div className='flex items-center justify-start gap-2 py-1'>
+              <div className='bg-green-600 size-2 rounded-full'/>
+              <p className='text-green-600 font-semibold text-sm'>Avialiable</p>
+            </div>
             <h3 className="font-semibold text-sm mb-1 truncate">{doctor.name}</h3>
             <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
             <p className="text-xs text-muted-foreground">{doctor.experience} exp.</p>
