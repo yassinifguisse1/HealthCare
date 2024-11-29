@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 const Hero = () => {
   return (
-    <div className=" px-4 bg-[linear-gradient(to_bottom,#000,#200D42_34%,#4F21A1_65%,#A46EDB_82%)] py-[72px] sm:py-24 relative overflow-clip">
+    <div className=" px-4 bg-[linear-gradient(to_bottom,#000,#200D42_34%,#4F21A1_65%,#A46EDB_82%)] py-[74px] sm:py-24 relative overflow-clip">
       <div className="absolute h-[370px] w-[750px] sm:w-[1536px] sm:h-[768px] lg:w-[2400px] lg:h-[1200px] xl:w-[2900px]  rounded-[100%] bg-black left-1/2 -translate-x-1/2 border border-[#B48CDE] bg-[radial-gradient(closest-side,#000_82%,#9560EB)] top-[calc(100%-96px)] sm:top-[calc(100%-115px)]"></div>
 
       <div className="container mx-auto flex justify-center items-center flex-col relative">

@@ -24,8 +24,7 @@ const CreateAccountBar = () => {
               <Image
                 src={DoctorImage}
                 alt="Doctor pointing"
-                fill
-                className="object-contain"
+                className="object-contain "
                 priority
               />
             </div>

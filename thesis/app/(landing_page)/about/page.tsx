@@ -1,20 +1,16 @@
 import Image from "next/image";
 import { Heart, Shield, Clock, Brain, Stethoscope, Users } from "lucide-react";
-import Head_of_Gastroenterologist from "@/assets/assets_frontend/Head_of_Gastroenterologist.jpg";
-import Lead_Surgeon from "@/assets/assets_frontend/Lead_Surgeon.jpg";
-import Head_of_Cardiology from "@/assets/assets_frontend/Head_of_Cardiology.jpg";
-import Chief_Medical_Officer from "@/assets/assets_frontend/Chief_Medical_Officer.jpg";
 import AboutImage from "@/assets/assets_frontend/about_image.png";
 import { HeroHighlight } from "@/components/ui/hero-highlight";
 import {teams} from '@/assets/assets_frontend/assets'
 
 export default function AboutPage() {
   return (
-    <div className=" min-h-screen  sm:py-[120px]">
+    <div className=" min-h-screen py-[72px] md:py-[120px]">
       <div className="relative isolate ">
         <div
           aria-hidden="true"
-          className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+          className=" absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
         >
           <div
             style={{

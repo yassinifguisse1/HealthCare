@@ -34,8 +34,10 @@ function DisplayDoctors(){
             <Image 
               src={doctor.image} 
               alt={doctor.name} 
-              layout="fill" 
-              objectFit="cover"
+              // layout="fill" 
+              // objectFit="cover"
+              className='object-cover '
+              priority
             />
             <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
               <div className="text-center flex flex-col items-center justify-center">

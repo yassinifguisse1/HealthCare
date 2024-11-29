@@ -37,7 +37,8 @@ export default function SignInPage() {
                         <Image
                           src={logoImage}
                           alt="Picture of the author"
-                          className="size-10 relative"
+                          className="size-10 relative object-cover"
+                          priority
                         />
                       </div>
                       <CardTitle>Sign in</CardTitle>

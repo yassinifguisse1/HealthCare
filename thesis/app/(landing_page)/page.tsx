@@ -7,7 +7,7 @@ import CreateAccountBar from "./_components/CreateAccountBar";
 export default function Home() {
   return (
     <>
-      <Navbar/>
+      {/* <Navbar/> */}
       <Hero/>
       <LogoTocker/>
       <SpecialityMenu/>

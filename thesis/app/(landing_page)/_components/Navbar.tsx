@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -12,10 +12,13 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 
 
 
@@ -33,12 +36,25 @@ type NavbarItemType = {
   clickCallback?: ()=> void;
 }
 const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleMobileMenuClose = () => {
+    setIsMobileMenuOpen(false);
+  };
   
 
   return (
     <>
       <DesktopNavbar/>
-      <MobileNavbar/>
+      <MobileNavbar 
+      isOpen={isMobileMenuOpen} 
+      onOpenChange={handleMobileMenuToggle}
+      onClose={handleMobileMenuClose}
+      />
     </>
   )
 }
@@ -59,48 +75,37 @@ function DesktopNavbar(){
         </div>
 
         {/* items and appointement btn */}
-        <div className='flex items-center justify-center'>
+        <div className="flex items-center justify-center">
           <div className="flex">
             {items.map((item) => (
               <NavbarItem key={item.labe} labe={item.labe} link={item.link} />
             ))}
           </div>
-          <Button>Login</Button>
+          <div className="flex items-center gap-2">
+
+              <SignedOut>
+                <div className="md:block hidden">
+                  <SignInButton>
+                    <Button>
+                      Log In
+                    </Button>
+                  </SignInButton>
+                </div>
+              </SignedOut>
+              <SignedIn>
+                <Link href="/about" className="flex items-center gap-x-3">
+                  {/* <Button>
+                    <span>Choose a Doctor</span>
+                  </Button> */}
+                  <UserButton userProfileMode="modal" />
+                </Link>
+              </SignedIn>
         </div>
+          
+        </div>
+        
 
-        {/* <div className="flex items-center gap-2">
 
-          <SignedOut>
-            <div className="md:block hidden">
-              <SignInButton>
-                <Button
-                  className={cn(
-                    
-                      ? "bg-white text-black dark:bg-black dark:text-white "
-                      : " bg-black text-white dark:bg-white dark:text-black"
-                  )}
-                >
-                  Log In
-                </Button>
-              </SignInButton>
-            </div>
-          </SignedOut>
-          <SignedIn>
-            <Link href="/story" className="flex items-center gap-x-3">
-              <Button
-                className={cn(
-                  
-                    ? "bg-white text-black dark:bg-black dark:text-white "
-                    : " dark:bg-white dark:text-black"
-                )}
-              >
-                <Plus className="mr-2 h-6 w-6" />
-                <span>Create a story</span>
-              </Button>
-              <UserButton userProfileMode="modal" />
-            </Link>
-          </SignedIn>
-        </div> */}
       </nav>
     </div>
   );
@@ -131,62 +136,64 @@ function NavbarItem({labe , link , clickCallback} : NavbarItemType){
   )
 
 }
-function MobileNavbar(){
+interface MobileNavbarProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+}
+function MobileNavbar({ isOpen, onOpenChange, onClose }:MobileNavbarProps){
+
   return (
-    <div className="md:hidden border-separate border-b block z-50 container mx-auto">
-      <nav className="flex items-center justify-between h-[70px] min-h-[70px] transition-colors duration-300 px-5">
-       <div className="relative">
-        <div className='absolute w-full top-2 bottom-0 bg-[linear-gradient(to_right,#F87BFF,#FB92CF,#FFDD9B,#C2F0B1,#2FD8FE)] blur-md'></div>
-       <Image
-          src={logoImage}
-          alt="Picture of the author"
-          className='size-10 relative'
-        />
-       </div>
-       
+    <div className="md:hidden border-separate border-b block z-50 fixed  w-full   bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/20">
+      <nav className="container mx-auto flex items-center justify-between h-[70px]  min-h-[70px] transition-colors duration-300 px-5">
+        <div className="relative">
+          <div className="absolute w-full top-2 bottom-0 bg-[linear-gradient(to_right,#F87BFF,#FB92CF,#FFDD9B,#C2F0B1,#2FD8FE)] blur-md"></div>
+          <Image
+            src={logoImage}
+            alt="Picture of the author"
+            className="size-10 relative"
+          />
+        </div>
+
         <div className="flex items-center gap-3">
-          {/* <SignedIn>
+          <SignedIn>
             <Link href="/story" className="flex items-center gap-x-3">
-              <Button
-                className={cn(
-                  
-                    ? "bg-white text-black dark:bg-black dark:text-white "
-                    : " dark:bg-white dark:text-black"
-                )}
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
+              <Button>hI test</Button>
               <UserButton userProfileMode="modal" />
             </Link>
-          </SignedIn> */}
-          <Sheet>
+          </SignedIn>
+
+          <Sheet open={isOpen} onOpenChange={onOpenChange}>
             <SheetTrigger asChild>
               <Button variant="outline">
-                <Menu />
+                <Menu className="cu cursor-pointer" />
               </Button>
             </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <div className="flex flex-col h-full py-5">
+            <SheetContent side="right">
+              {/* <SheetHeader> */}
+              <SheetHeader className="hidden">
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>
+                  Access our s main navigation links here.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="flex flex-col ">
+                <div className="flex flex-col h-full py-5 ">
                   {items.map((item) => (
                     <NavbarItem
                       key={item.labe}
                       labe={item.labe}
                       link={item.link}
+                      clickCallback={onClose}
                     />
                   ))}
                 </div>
-              </SheetHeader>
-              <SheetFooter>
-                <SheetClose asChild>
-                  {/* <SignedOut>
-                    <SignInButton>
-                      <Button className="w-1/2">Log In</Button>
-                    </SignInButton>
-                  </SignedOut> */}
-                  Log In
-                </SheetClose>
-              </SheetFooter>
+                <SignedOut>
+                  <SignInButton>
+                    <Button className="w-1/2">Log In</Button>
+                  </SignInButton>
+                </SignedOut>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
@@ -194,3 +201,5 @@ function MobileNavbar(){
     </div>
   );
 }
+
+
