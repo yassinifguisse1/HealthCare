@@ -5,15 +5,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { buttonVariants , Button } from '@/components/ui/button'
-// import {  SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import logoImage from "@/assets/images/logosaas.png"
 import { Menu } from 'lucide-react';
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
