@@ -9,7 +9,7 @@ export type Doctor = {
     fees: number;
     address: {
       line1: string;
-      line2: string;
+      line2?: string;
     };
   };
   

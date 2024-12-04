@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {Button} from '@/components/ui/button'
+import Link from 'next/link'
 
 
 const DoctorList = () => {
@@ -24,18 +25,17 @@ const DoctorList = () => {
 }
 
 export default DoctorList
-
+  
 function DisplayDoctors(){
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {doctors.slice(0, 10).map((doctor) => (
-        <Card key={doctor._id} className="overflow-hidden group cursor-pointer">
+       <Link key={doctor._id} href={`/${doctor._id}_${doctor.name}`}>
+        <Card  className="overflow-hidden group cursor-pointer">
           <div className="relative aspect-square">
             <Image 
               src={doctor.image} 
               alt={doctor.name} 
-              // layout="fill" 
-              // objectFit="cover"
               className='object-cover '
               priority
             />
@@ -56,6 +56,7 @@ function DisplayDoctors(){
             <p className="text-xs text-muted-foreground">{doctor.experience} exp.</p>
           </CardContent>
         </Card>
+        </Link>
       ))}
     </div>
     );

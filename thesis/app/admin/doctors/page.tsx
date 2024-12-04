@@ -6,12 +6,13 @@ import { DoctorList } from "@/app/admin/_components/DoctorList"
 import { Doctor } from "@/types/doctor"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import testImage from "@/assets/assets_frontend/doc1.png"
 
 const initialDoctors: Doctor[] = [
   {
     _id: 'doc1',
     name: 'Dr. Richard James',
-    image: '/placeholder.svg?height=400&width=400',
+    image: testImage,
     speciality: 'General physician',
     degree: 'MBBS',
     experience: '4 Years',
@@ -45,36 +46,55 @@ export default function DoctorManagementPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 w-full ">
+    <div className="container mx-auto py-8 w-full">
       <h1 className="text-3xl font-bold mb-8 ">Doctor Management</h1>
-      
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) setEditingDoctor(null); // Reset editingDoctor when dialog closes
+          setIsDialogOpen(open);
+        }}
+      >
         <DialogTrigger asChild>
-          <Button className="mb-6">Add New Doctor</Button>
+          <Button
+            onClick={() => {
+              setEditingDoctor(null); // Clear editingDoctor when adding a new doctor
+              setIsDialogOpen(true);
+            }}
+            className="mb-6"
+          >
+            Add New Doctor
+          </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-w-full h-[75%] border-2">
+        <DialogContent className="sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingDoctor ? 'Edit Doctor' : 'Add New Doctor'}</DialogTitle>
+            <DialogTitle>
+              {editingDoctor ? "Edit Doctor" : "Add New Doctor"}
+            </DialogTitle>
             <DialogDescription>
-              {editingDoctor ? 'Edit the details of the doctor.' : 'Enter the details of the new doctor.'}
+              {editingDoctor
+                ? "Edit the details of the doctor."
+                : "Enter the details of the new doctor."}
             </DialogDescription>
           </DialogHeader>
-          <DoctorForm 
-            initialData={editingDoctor || undefined} 
-            onSubmit={editingDoctor ? handleUpdateDoctor : handleAddDoctor} 
+          <DoctorForm
+            key={editingDoctor?._id || "add"}
+            initialData={editingDoctor || undefined}
+            onSubmit={editingDoctor ? handleUpdateDoctor : handleAddDoctor}
           />
         </DialogContent>
       </Dialog>
 
-      <DoctorList 
-        doctors={doctors} 
+      <DoctorList
+        doctors={doctors}
         onEdit={(doctor) => {
           setEditingDoctor(doctor);
           setIsDialogOpen(true);
-        }} 
-        onDelete={handleDeleteDoctor} 
+        }}
+        onDelete={handleDeleteDoctor}
       />
     </div>
-  )
+  );
 }
 
