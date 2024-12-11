@@ -27,6 +27,10 @@ const nextConfig = {
   
       return config;
     },
+    reactStrictMode: true,
+    images: {
+      domains: ['files.edgestore.dev'], // Add EdgeStore's domain here
+    },
   };
   
   export default nextConfig;

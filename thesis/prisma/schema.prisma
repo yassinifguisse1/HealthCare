@@ -1,14 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
-
-
 
 datasource db {
   provider  = "postgresql"
@@ -17,61 +9,51 @@ datasource db {
 }
 
 model Doctor {
-  id          String     @id @default(cuid())
-  name        String
-  image       String      // Doctor's profile image URL
-  speciality  Speciality  // Enum for doctor's speciality
-  degree      String
-  experience  String
-  about       String
-  fees        Float       // Appointment fees
-  addressLine1 String  // First line of address
-  addressLine2 String? // Optional second line of address
-  departmentId String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt()
-  department  Department @relation(fields: [departmentId], references: [id])
+  id           String        @id @default(cuid())
+  name         String
+  image        String
+  speciality   Speciality
+  degree       String
+  experience   String
+  about        String
+  fees         Float
+  addressLine1 String
+  addressLine2 String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   appointments Appointment[]
 }
 
-model Department {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  doctors     Doctor[] // One-to-Many with Doctors
-}
-
 model Appointment {
-  id          String     @id @default(cuid())
-  patientId   String     // Clerk's userId
-  patientName String     // Store the patient's name from Clerk metadata
-  doctorId    String
-  appointmentDateTime        DateTime   // Appointment date and time
-  status      AppointmentStatus     // Enum: 'PENDING', 'SCHEDULED', 'CANCELLED'
-  fees        Float      // Doctor's fees (copied from the Doctor table at booking time)
-  paymentStatus      PaymentStatus    // ENUM: Paid, Pending, Failed
-  paymentMethod      String?          // Optional: e.g., "Credit Card", "Cash"
-  transactionId      String?          // Optional: For payment gateway tracking
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt()
-  doctor      Doctor     @relation(fields: [doctorId], references: [id])
-  Notifications  Notification[]  // Back-relation to Notification
-  @@index([patientId])  // Index for querying appointments by patient
-  @@index([doctorId])   // Index for querying appointments by doctor
-}
+  id                  String            @id @default(cuid())
+  patientId           String
+  patientName         String
+  doctorId            String
+  appointmentDateTime DateTime
+  status              AppointmentStatus
+  fees                Float
+  paymentStatus       PaymentStatus
+  paymentMethod       String?
+  transactionId       String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  notes               String?
+  doctor              Doctor            @relation(fields: [doctorId], references: [id])
+  Notifications       Notification[]
 
+  @@index([patientId])
+  @@index([doctorId])
+}
 
 model Notification {
-  id          String   @id @default(cuid()) // Unique identifier
-  userId      String   // Reference to the user (admin or patient)
-  content     String   // Notification message
-  type        NotificationType   // Type of notification (e.g., "Reminder", "Cancellation", "Update")
-  status      NotificationStatus   // "Unread", "Read"
-  createdAt   DateTime @default(now()) // Timestamp for when the notification is created
-  appointmentId String?   // Foreign key to Appointment (optional if not all notifications are appointment-related)
-  Appointment  Appointment? @relation(fields: [appointmentId], references: [id])
+  id            String             @id @default(cuid())
+  userId        String
+  content       String
+  type          NotificationType
+  status        NotificationStatus
+  createdAt     DateTime           @default(now())
+  appointmentId String?
+  Appointment   Appointment?       @relation(fields: [appointmentId], references: [id])
 }
 
 enum Speciality {
@@ -88,15 +70,18 @@ enum AppointmentStatus {
   SCHEDULED
   CANCELLED
 }
+
 enum NotificationType {
   REMINDER
   CANCELLATION
   UPDATE
 }
+
 enum NotificationStatus {
   UNREAD
   READ
 }
+
 enum PaymentStatus {
   PAID
   PENDING

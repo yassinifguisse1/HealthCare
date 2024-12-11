@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 const usersPage = async (params: {
     searchParams: Promise<{ search?: string }>
   }) => {
+   
     if (!checkRole('admin')) {
         redirect('/about')
       }

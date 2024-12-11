@@ -13,7 +13,7 @@ export function DoctorList({ doctors, onEdit, onDelete }: DoctorListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {doctors.map((doctor) => (
-        <Card key={doctor._id} className="flex flex-col">
+        <Card key={doctor.id} className="flex flex-col">
           <CardHeader>
             <div className="w-full h-48 relative mb-4">
               <Image
