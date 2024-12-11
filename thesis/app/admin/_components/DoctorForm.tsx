@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useTransition } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
+import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,16 +12,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Doctor } from "@/types/doctor"
-import Image from "next/image"
-import { useEdgeStore } from '@/lib/edgestore';
-import React from "react"
-import { SingleImageDropzone } from '@/components/ui/SingleImageDropzone';
-import { Select, SelectContent, SelectItem, SelectValue,SelectTrigger } from "@/components/ui/select"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Doctor } from "@/types/doctor";
+import Image from "next/image";
+import { useEdgeStore } from "@/lib/edgestore";
+import React from "react";
+import { SingleImageDropzone } from "@/components/ui/SingleImageDropzone";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+  SelectTrigger,
+} from "@/components/ui/select";
 // import { SelectTrigger } from "@radix-ui/react-select"
+import axios from "axios";
+import { toast } from "sonner"
 
 
 
@@ -48,11 +56,12 @@ const formSchema = z.object({
     line1: z.string().min(1, { message: "Address Line 1 is required." }),
     line2: z.string().optional(),
   }),
-})
+});
 
 type DoctorFormProps = {
   initialData?: Doctor;
   onSubmit: (data: Doctor) => void;
+  setIsDialogOpen: (isOpen: boolean) => void;
 };
 
 const SpecialityOptions = [
@@ -64,76 +73,83 @@ const SpecialityOptions = [
   "GASTROENTEROLOGIST",
 ];
 
-export function DoctorForm({ initialData, onSubmit }: DoctorFormProps) {
-    const [imagePreview, setImagePreview] = useState(initialData?.image || "")
-    const [file, setFile] = React.useState<File>();
-    const { edgestore } = useEdgeStore();
-    const [isPending, startTransition] = useTransition();
+export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFormProps) {
+  const [imagePreview, setImagePreview] = useState(initialData?.image || "");
+  const [file, setFile] = React.useState<File>();
+  const { edgestore } = useEdgeStore();
+  const [isPending, startTransition] = useTransition();
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      speciality: initialData?.speciality || "",
+      degree: initialData?.degree || "",
+      experience: initialData?.experience || "",
+      about: initialData?.about || "",
+      fees: initialData?.fees || 0,
+      address: {
+        line1: initialData?.address?.line1 || "",
+        line2: initialData?.address?.line2 || "",
+      },
+    },
+  });
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          name: initialData?.name || "",
-          speciality: initialData?.speciality || "",
-          degree: initialData?.degree || "",
-          experience: initialData?.experience || "",
-          about: initialData?.about || "",
-          fees: initialData?.fees || 0,
-          address: {
-            line1: initialData?.address?.line1 || "",
-            line2: initialData?.address?.line2 || "",
-          },
-        },
-      })
-
-      async function handleSubmit(values: z.infer<typeof formSchema>) {
-
-   
+  async function handleSubmit(values: z.infer<typeof formSchema>) {
     try {
-   
-      console.log('clicked = outside')
+      console.log("clicked = outside");
       startTransition(async () => {
         let uploadedImageUrl = "";
-      if (!file) {
-        alert("Please select an image.");
-        return;
-      }
-      if (file) {
-        const res = await edgestore.publicFiles.upload({
-          file,
-          onProgressChange: (progress) => console.log(progress),
-        });
-        uploadedImageUrl = res.url;
-        console.log(uploadedImageUrl)
-        console.log('clicked = inside')
-      }
-      const finalData = {
-        id: initialData?.id || Date.now().toString(),
-        ...values,
-        image: uploadedImageUrl,
-        address: {
-          line1: values.address.line1,
-          line2: values.address.line2 || "",
-        },
-      };
-        onSubmit(finalData);
+        if (!file) {
+          alert("Please select an image.");
+          return;
+        }
+        if (file) {
+          const res = await edgestore.publicFiles.upload({
+            file,
+            onProgressChange: (progress) => console.log(progress),
+          });
+          uploadedImageUrl = res.url;
+          console.log(uploadedImageUrl);
+          console.log("clicked = inside");
+        }
+                // Send form data to the backend
+                const response = await axios.post("/api/doctor" , {
+                  ...values,
+                  image: uploadedImageUrl || "",
+                  addressLine1: values.address.line1,
+                   addressLine2: values.address.line2 || null,
+                })
+                if (response.status === 201) {
+             
+                  toast.success('Event has been created')
+                  // form.reset();
+                  setIsDialogOpen(false)
+                } else {
+                  throw new Error(response.data.error || "Unexpected error occurred.");
+                }
+
+        // const finalData = {
+        //   id: initialData?.id || Date.now().toString(),
+        //   ...values,
+        //   image: uploadedImageUrl,
+        //   address: {
+        //     line1: values.address.line1,
+        //     line2: values.address.line2 || "",
+        //   },
+        // };
+        // onSubmit(response);
       });
-
-
     } catch (err) {
       console.error(err);
-      alert("Image upload failed. Please try again.");
+      toast.error('Event has not been created')
+
     }
   }
-
-
-
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-   
         {/* Image Upload */}
         <div className="space-y-4">
           <SingleImageDropzone
@@ -160,31 +176,33 @@ export function DoctorForm({ initialData, onSubmit }: DoctorFormProps) {
               </FormItem>
             )}
           />
-        <FormField
-          control={form.control}
-          name="speciality"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Speciality</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="border w-full ">
-                    <SelectValue placeholder="Select a Speciality" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {SpecialityOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option.replace("_", " ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+          <FormField
+            control={form.control}
+            name="speciality"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Speciality</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="border w-full ">
+                      <SelectValue placeholder="Select a Speciality" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {SpecialityOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option.replace("_", " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -273,14 +291,10 @@ export function DoctorForm({ initialData, onSubmit }: DoctorFormProps) {
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          disabled={isPending}
-        >
+        <Button type="submit" disabled={isPending}>
           {isPending ? "Saving..." : "Save Doctor"}
         </Button>
       </form>
     </Form>
   );
 }
-

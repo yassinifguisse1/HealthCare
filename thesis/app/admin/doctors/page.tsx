@@ -10,7 +10,7 @@ import testImage from "@/assets/assets_frontend/doc1.png"
 
 const initialDoctors: Doctor[] = [
   {
-    _id: 'doc1',
+    id: 'doc1',
     name: 'Dr. Richard James',
     image: testImage,
     speciality: 'General physician',
@@ -36,13 +36,13 @@ export default function DoctorManagementPage() {
   };
 
   const handleUpdateDoctor = (updatedDoctor: Doctor) => {
-    setDoctors(doctors.map(doc => doc._id === updatedDoctor._id ? updatedDoctor : doc));
+    setDoctors(doctors.map(doc => doc.id === updatedDoctor.id ? updatedDoctor : doc));
     setEditingDoctor(null);
     setIsDialogOpen(false);
   };
 
   const handleDeleteDoctor = (id: string) => {
-    setDoctors(doctors.filter(doc => doc._id !== id));
+    setDoctors(doctors.filter(doc => doc.id !== id));
   };
 
   return (
@@ -79,9 +79,10 @@ export default function DoctorManagementPage() {
             </DialogDescription>
           </DialogHeader>
           <DoctorForm
-            key={editingDoctor?._id || "add"}
+            key={editingDoctor?.id || "add"}
             initialData={editingDoctor || undefined}
             onSubmit={editingDoctor ? handleUpdateDoctor : handleAddDoctor}
+            setIsDialogOpen={setIsDialogOpen}
           />
         </DialogContent>
       </Dialog>

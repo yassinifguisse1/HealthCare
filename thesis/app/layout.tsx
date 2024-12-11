@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { EdgeStoreProvider } from '../lib/edgestore';
+import { Toaster } from "@/components/ui/sonner"
+
 
 
 const geistSans = localFont({
@@ -32,7 +34,11 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <EdgeStoreProvider>{children}</EdgeStoreProvider>
+          <EdgeStoreProvider>
+          <Toaster richColors position="top-right"/>
+
+            {children}
+            </EdgeStoreProvider>
         </body>
       </html>
     </ClerkProvider>
