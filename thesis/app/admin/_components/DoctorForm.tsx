@@ -30,33 +30,12 @@ import {
 // import { SelectTrigger } from "@radix-ui/react-select"
 import axios from "axios";
 import { toast } from "sonner"
+import { formSchema } from "@/lib/shema";
+import { redirect } from "next/navigation";
 
 
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  speciality: z.string().min(2, {
-    message: "Speciality must be at least 2 characters.",
-  }),
-  degree: z.string().min(2, {
-    message: "Degree must be at least 2 characters.",
-  }),
-  experience: z.string().min(1, {
-    message: "Experience is required.",
-  }),
-  about: z.string().min(10, {
-    message: "About must be at least 10 characters.",
-  }),
-  fees: z.number().min(0, {
-    message: "Fees must be a positive number.",
-  }),
-  address: z.object({
-    line1: z.string().min(1, { message: "Address Line 1 is required." }),
-    line2: z.string().optional(),
-  }),
-});
+
 
 type DoctorFormProps = {
   initialData?: Doctor;
@@ -74,10 +53,11 @@ const SpecialityOptions = [
 ];
 
 export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFormProps) {
-  const [imagePreview, setImagePreview] = useState(initialData?.image || "");
+  // const [imagePreview, setImagePreview] = useState(initialData?.image || "");
   const [file, setFile] = React.useState<File>();
   const { edgestore } = useEdgeStore();
   const [isPending, startTransition] = useTransition();
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -88,16 +68,20 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
       experience: initialData?.experience || "",
       about: initialData?.about || "",
       fees: initialData?.fees || 0,
-      address: {
-        line1: initialData?.address?.line1 || "",
-        line2: initialData?.address?.line2 || "",
-      },
+      addressLine1: initialData?.addressLine1 || "",
+      addressLine2: initialData?.addressLine2 || "",
     },
   });
 
+
   async function handleSubmit(values: z.infer<typeof formSchema>) {
+
+    console.log("Form submitted with values:", values); // Debugging log
+
+  
     try {
       console.log("clicked = outside");
+      
       startTransition(async () => {
         let uploadedImageUrl = "";
         if (!file) {
@@ -116,29 +100,20 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
                 // Send form data to the backend
                 const response = await axios.post("/api/doctor" , {
                   ...values,
-                  image: uploadedImageUrl || "",
-                  addressLine1: values.address.line1,
-                   addressLine2: values.address.line2 || null,
+                  image: uploadedImageUrl || ""
+                
                 })
                 if (response.status === 201) {
              
-                  toast.success('Event has been created')
-                  // form.reset();
-                  setIsDialogOpen(false)
+                  setIsDialogOpen(false); // Close dialog after success
+                  toast.success("Doctor added successfully!"); // Show success toast
+                  redirect('/admin/doctors')
+
+                  console.log('response.data' , response.data)
+                  
                 } else {
                   throw new Error(response.data.error || "Unexpected error occurred.");
                 }
-
-        // const finalData = {
-        //   id: initialData?.id || Date.now().toString(),
-        //   ...values,
-        //   image: uploadedImageUrl,
-        //   address: {
-        //     line1: values.address.line1,
-        //     line2: values.address.line2 || "",
-        //   },
-        // };
-        // onSubmit(response);
       });
     } catch (err) {
       console.error(err);
@@ -146,7 +121,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
 
     }
   }
-
+  
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -159,8 +134,6 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
             height={200}
           />
           <FormMessage />
-
-          <FormMessage />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           <FormField
@@ -170,7 +143,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Dr. John Doe" {...field} />
+                  <Input placeholder="Dr. John Doe" {...field} value={field.value || ""}/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -211,7 +184,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
               <FormItem>
                 <FormLabel>Degree</FormLabel>
                 <FormControl>
-                  <Input placeholder="MBBS, MD" {...field} />
+                  <Input placeholder="MBBS, MD" {...field} value={field.value || ""}/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -224,7 +197,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
               <FormItem>
                 <FormLabel>Experience</FormLabel>
                 <FormControl>
-                  <Input placeholder="5 Years" {...field} />
+                  <Input placeholder="5 Years" {...field} value={field.value || ""}/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -242,6 +215,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
                     placeholder="100"
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -259,6 +233,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
                 <Textarea
                   placeholder="Brief description about the doctor"
                   {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -267,12 +242,13 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
         />
         <FormField
           control={form.control}
-          name="address.line1"
+          name="addressLine1"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Address Line 1</FormLabel>
               <FormControl>
-                <Input placeholder="123 Main St" {...field} />
+                <Input placeholder="123 Main St" {...field} value={field.value || ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -280,18 +256,21 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
         />
         <FormField
           control={form.control}
-          name="address.line2"
+          name="addressLine2"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Address Line 2</FormLabel>
               <FormControl>
-                <Input placeholder="Apt 4B" {...field} />
+                <Input placeholder="Apt 4B" {...field} value={field.value || ""}/>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isPending}>
+        <Button
+          type="submit"
+          disabled={isPending}
+        >
           {isPending ? "Saving..." : "Save Doctor"}
         </Button>
       </form>

@@ -129,6 +129,7 @@ export default function AboutPage() {
                     alt={member.name}
                     width={100}
                     height={100}
+                    
                     priority
                     className="object-cover object-top rounded-full w-full h-full"
                   />

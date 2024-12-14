@@ -6,10 +6,9 @@ export type Doctor = {
     degree: string;
     experience: string;
     about: string;
-    fees: number;
-    address: {
-      line1: string;
-      line2?: string;
-    };
+    fees: number; 
+    addressLine1: string;
+    addressLine2?: string;
+    
   };
   

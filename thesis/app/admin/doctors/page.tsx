@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DoctorForm } from "@/app/admin/_components/DoctorForm"
 import { DoctorList } from "@/app/admin/_components/DoctorList"
 import { Doctor } from "@/types/doctor"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import testImage from "@/assets/assets_frontend/doc1.png"
+import { DoctorListSkeleton } from "@/app/(landing_page)/_components/DoctorListSkeleton"
+import axios from "axios"
+import { useAuth } from '@clerk/clerk-react'
+
 
 const initialDoctors: Doctor[] = [
   {
@@ -29,9 +33,13 @@ export default function DoctorManagementPage() {
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading , setIsLoading] = useState<boolean>(true);
+  const { getToken, isLoaded, isSignedIn } = useAuth()
 
+// add doctor
   const handleAddDoctor = (newDoctor: Doctor) => {
     setDoctors([...doctors, newDoctor]);
+    console.log("doctor from admin/doctors/page.tsx" , newDoctor)
     setIsDialogOpen(false);
   };
 
@@ -44,6 +52,37 @@ export default function DoctorManagementPage() {
   const handleDeleteDoctor = (id: string) => {
     setDoctors(doctors.filter(doc => doc.id !== id));
   };
+
+  // fetch doctors from database 
+
+  
+    const fetchDoctors = async () => {
+      setIsLoading(true);
+      try {
+        const token = await getToken({ template: "TOKEN_Healthcare" });
+        const response = await axios.get('http://localhost:3000/api/doctor',{
+          headers: {
+            'Content-Type': 'application/json',
+            // token from clerk
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        const data = response.data;
+        setDoctors(data);
+        console.log('data inside fetchDoctors axios.get' , data)
+
+    }catch(error) {
+      console.log("error fetching doctors" , error)
+    }
+    
+    setIsLoading(false);
+  }
+
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []); 
+
 
   return (
     <div className="container mx-auto py-8 w-full">
@@ -87,15 +126,21 @@ export default function DoctorManagementPage() {
         </DialogContent>
       </Dialog>
 
-      <DoctorList
-        doctors={doctors}
-        onEdit={(doctor) => {
-          setEditingDoctor(doctor);
-          setIsDialogOpen(true);
-        }}
-        onDelete={handleDeleteDoctor}
-      />
+      {isLoading ? (
+        <DoctorListSkeleton />
+      ) : (
+        <DoctorList
+          doctors={doctors}
+          onEdit={(doctor) => {
+            setEditingDoctor(doctor);
+            setIsDialogOpen(true);
+          }}
+          onDelete={handleDeleteDoctor}
+        />
+      )}
     </div>
   );
 }
+
+
 
