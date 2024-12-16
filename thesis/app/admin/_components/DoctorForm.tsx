@@ -107,10 +107,7 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
              
                   setIsDialogOpen(false); // Close dialog after success
                   toast.success("Doctor added successfully!"); // Show success toast
-                  redirect('/admin/doctors')
-
-                  console.log('response.data' , response.data)
-                  
+                  redirect('/admin/doctors')                  
                 } else {
                   throw new Error(response.data.error || "Unexpected error occurred.");
                 }

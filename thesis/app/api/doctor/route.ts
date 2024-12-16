@@ -14,7 +14,11 @@ export async function GET() {
   try {
        // Fetch all doctors from the database
 
-    const doctor = await prisma.doctor.findMany();
+    const doctor = await prisma.doctor.findMany({
+      orderBy:{
+        createdAt: "asc"
+      }
+    });
    
       return NextResponse.json(doctor, { status: 201 })
     
