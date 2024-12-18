@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import {  useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Doctor } from "@/types/doctor";
-import Image from "next/image";
 import { useEdgeStore } from "@/lib/edgestore";
 import React from "react";
 import { SingleImageDropzone } from "@/components/ui/SingleImageDropzone";
@@ -27,11 +25,12 @@ import {
   SelectValue,
   SelectTrigger,
 } from "@/components/ui/select";
-// import { SelectTrigger } from "@radix-ui/react-select"
 import axios from "axios";
 import { toast } from "sonner"
 import { formSchema } from "@/lib/shema";
+import { Doctor } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { Progress } from "@/components/ui/progress";
 
 
 
@@ -52,12 +51,12 @@ const SpecialityOptions = [
   "GASTROENTEROLOGIST",
 ];
 
-export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFormProps) {
+export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFormProps) {
   // const [imagePreview, setImagePreview] = useState(initialData?.image || "");
   const [file, setFile] = React.useState<File>();
   const { edgestore } = useEdgeStore();
   const [isPending, startTransition] = useTransition();
-
+  const [progress, setProgress] = useState(0);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,17 +72,13 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
     },
   });
 
-
   async function handleSubmit(values: z.infer<typeof formSchema>) {
+    // console.log("Form submitted with values:", values); // Debugging log
 
-    console.log("Form submitted with values:", values); // Debugging log
-
-  
     try {
-      console.log("clicked = outside");
-      
+      setProgress(0);
       startTransition(async () => {
-        let uploadedImageUrl = "";
+        let uploadedImageUrl = initialData?.image || "";
         if (!file) {
           alert("Please select an image.");
           return;
@@ -91,34 +86,55 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
         if (file) {
           const res = await edgestore.publicFiles.upload({
             file,
-            onProgressChange: (progress) => console.log(progress),
+            onProgressChange: (progress) => {
+              console.log(progress);
+              setProgress(progress);
+            },
           });
           uploadedImageUrl = res.url;
           console.log(uploadedImageUrl);
           console.log("clicked = inside");
         }
-                // Send form data to the backend
-                const response = await axios.post("/api/doctor" , {
-                  ...values,
-                  image: uploadedImageUrl || ""
-                
-                })
-                if (response.status === 201) {
-             
-                  setIsDialogOpen(false); // Close dialog after success
-                  toast.success("Doctor added successfully!"); // Show success toast
-                  redirect('/admin/doctors')                  
-                } else {
-                  throw new Error(response.data.error || "Unexpected error occurred.");
-                }
+        setProgress(99); // Set to 50% after image upload
+
+        // Determine if it's an edit or create action
+        const method = initialData ? "PUT" : "POST";
+
+        const endpoint = initialData
+          ? `/api/doctor/${initialData.id}` // Update existing doctor
+          : `/api/doctor`; // Add new doctor
+
+        const response = await axios({
+          method,
+          url: endpoint,
+          data: {
+            ...values,
+            image: uploadedImageUrl || "/empty.svg",
+          },
+        });
+        setProgress(100); // Set to 100% after API call
+
+        if (response.status === 200 || response.status === 201) {
+          setIsDialogOpen(false); // Close dialog after success
+          toast.success(
+            initialData
+              ? "Doctor updated successfully!"
+              : "Doctor added successfully!"
+          );
+          onSubmit(response.data); // Pass updated doctor data back to the parent
+          // await revalidateAndRedirect('/admin/doctors', '/admin/doctors');
+          redirect("/admin/doctors");
+        } else {
+          throw new Error(response.data.error || "Unexpected error occurred.");
+        }
       });
     } catch (err) {
       console.error(err);
-      toast.error('Event has not been created')
-
+      toast.error("Event has not been created");
+      setProgress(0);
     }
   }
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -140,7 +156,11 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Dr. John Doe" {...field} value={field.value || ""}/>
+                  <Input
+                    placeholder="Dr. John Doe"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -181,7 +201,11 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
               <FormItem>
                 <FormLabel>Degree</FormLabel>
                 <FormControl>
-                  <Input placeholder="MBBS, MD" {...field} value={field.value || ""}/>
+                  <Input
+                    placeholder="MBBS, MD"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -194,7 +218,11 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
               <FormItem>
                 <FormLabel>Experience</FormLabel>
                 <FormControl>
-                  <Input placeholder="5 Years" {...field} value={field.value || ""}/>
+                  <Input
+                    placeholder="5 Years"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -244,7 +272,10 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
             <FormItem>
               <FormLabel>Address Line 1</FormLabel>
               <FormControl>
-                <Input placeholder="123 Main St" {...field} value={field.value || ""}
+                <Input
+                  placeholder="123 Main St"
+                  {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -258,7 +289,11 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
             <FormItem>
               <FormLabel>Address Line 2</FormLabel>
               <FormControl>
-                <Input placeholder="Apt 4B" {...field} value={field.value || ""}/>
+                <Input
+                  placeholder="Apt 4B"
+                  {...field}
+                  value={field.value || ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -266,10 +301,27 @@ export function DoctorForm({ initialData, onSubmit , setIsDialogOpen}: DoctorFor
         />
         <Button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || (progress > 0 && progress < 100)}
         >
-          {isPending ? "Saving..." : "Save Doctor"}
+          {isPending || (progress > 0 && progress < 100)
+            ? initialData
+              ? "Updating..."
+              : "Saving..."
+            : initialData
+            ? "Update Doctor"
+            : "Save Doctor"}
         </Button>
+        {/* Progress bar */}
+        {progress > 0 && (
+          <div className="w-full">
+            <Progress value={progress} className="w-full" />
+            <p className="text-sm text-center mt-2">
+              {progress < 100
+                ? `Adding doctor... ${progress}%`
+                : "Doctor added successfully!"}
+            </p>
+          </div>
+        )}
       </form>
     </Form>
   );

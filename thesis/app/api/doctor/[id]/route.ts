@@ -10,7 +10,7 @@ interface Proptype {
   
   /**
  * @method PUT
- * @route ~/api/articles/:id
+ * @route ~/api/doctor/:id
  * @desc Update Single Articles by id
  * @access public
  **/
@@ -67,7 +67,7 @@ interface Proptype {
        
           console.log("Validation:", validation);
           console.log("Body:", body);
-          // ADD ORDERBY
+          
       const updatedDoctor = await prisma.doctor.update({
         where: {
             id: params.id,  
@@ -94,4 +94,52 @@ interface Proptype {
         { status: 500 }
       );
     }
+  }
+
+    /**
+ * @method GET
+ * @route ~/api/doctor/:id
+ * @desc GET Single Doctor by id
+ * @access public
+ **/
+
+  export async function GET(request: NextRequest,{ params }: Proptype) {
+    console.log("Received params:", params);
+
+    try {
+      const { userId } = getAuth(request);
+      console.log("Request userId:", userId);
+  
+      if (!userId) {
+        return NextResponse.json(
+          { error: "User is not signed in." },
+          { status: 401 }
+        );
+      }
+  
+     
+      const doctor = await prisma.doctor.findUnique(
+        {
+          where: {
+            id: params.id,
+          }
+        }
+      )
+      if (!doctor) {
+        return NextResponse.json(
+          { message: "doctor not fund" },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json(doctor, { status: 200 });
+      
+    } catch (error) {
+      console.log("Eror thisi is ",error)
+      return NextResponse.json(
+        { message: "internal server errorb" },
+        { status: 500 }
+        );
+      
+    }
+    
   }

@@ -3,38 +3,21 @@
 import { useEffect, useState } from "react"
 import { DoctorForm } from "@/app/admin/_components/DoctorForm"
 import { DoctorList } from "@/app/admin/_components/DoctorList"
-import { Doctor } from "@/types/doctor"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import testImage from "@/assets/assets_frontend/doc1.png"
 import { DoctorListSkeleton } from "@/app/(landing_page)/_components/DoctorListSkeleton"
 import axios from "axios"
 import { useAuth } from '@clerk/clerk-react'
+import { Doctor } from "@prisma/client"
 
 
-const initialDoctors: Doctor[] = [
-  {
-    id: 'doc1',
-    name: 'Dr. Richard James',
-    image: testImage,
-    speciality: 'General physician',
-    degree: 'MBBS',
-    experience: '4 Years',
-    about: 'Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies. Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.',
-    fees: 50,
-    address: {
-      line1: '17th Cross, Richmond',
-      line2: 'Circle, Ring Road, London'
-    }
-  },
-];
 
 export default function DoctorManagementPage() {
-  const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading , setIsLoading] = useState<boolean>(true);
-  const { getToken, isLoaded, isSignedIn } = useAuth()
+  const { getToken} = useAuth()
 
 // add doctor
   const handleAddDoctor = (newDoctor: Doctor) => {
@@ -60,11 +43,12 @@ export default function DoctorManagementPage() {
       setIsLoading(true);
       try {
         const token = await getToken({ template: "TOKEN_Healthcare" });
-        const response = await axios.get('http://localhost:3000/api/doctor',{
+        const response = await axios.get("http://localhost:3000/api/doctor", {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             // token from clerk
             Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-store"  // Suggestion to discourage caching
           }
         });
         const data = response.data;
@@ -82,6 +66,42 @@ export default function DoctorManagementPage() {
   useEffect(() => {
     fetchDoctors();
   }, []); 
+
+  // Update doctors from database 
+
+  
+  const updateDoctors = async ( 
+    id: string, updatedData: Partial<Doctor>
+  ) => {
+    setIsLoading(true);
+    try {
+      const token = await getToken({ template: "TOKEN_Healthcare" });
+      const response = await axios.put(
+        `http://localhost:3000/api/doctor/${id}`,
+        updatedData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // token from clerk
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+      const updatedDoctor = response.data;
+      // Update the state to reflect the changes
+      setDoctors((prevDoctors) =>
+        prevDoctors.map((doc) =>
+          doc.id === updatedDoctor.id ? updatedDoctor : doc
+        )
+      );
+      console.log("data inside UpdateDoctors axios.get", updatedDoctor);
+    } catch (error) {
+      console.log("error fetching doctors", error);
+    }
+  
+  setIsLoading(false);
+}
+
 
 
   return (
@@ -120,7 +140,16 @@ export default function DoctorManagementPage() {
           <DoctorForm
             key={editingDoctor?.id || "add"}
             initialData={editingDoctor || undefined}
-            onSubmit={editingDoctor ? handleUpdateDoctor : handleAddDoctor}
+            onSubmit={(data) => {
+              if (editingDoctor) {
+                // If editing, call updateDoctors with the doctor's ID and new data
+                updateDoctors(editingDoctor.id, data);
+                console.log('id of this doctor is ',  editingDoctor.id, data)
+              } else {
+                // If adding a new doctor, call handleAddDoctor
+                handleAddDoctor(data);
+              }
+            }}
             setIsDialogOpen={setIsDialogOpen}
           />
         </DialogContent>

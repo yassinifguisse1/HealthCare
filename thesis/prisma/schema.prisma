@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Doctor {
-  id           String        @id @default(cuid())
+  id           String        @id @default(cuid()) 
   name         String
   image        String
   speciality   Speciality
