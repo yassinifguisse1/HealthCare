@@ -52,7 +52,8 @@ export default function DoctorManagementPage() {
           }
         });
         const data = response.data;
-        setDoctors(data);
+        setDoctors(data)
+       
         console.log('data inside fetchDoctors axios.get' , data)
 
     }catch(error) {
@@ -84,22 +85,23 @@ export default function DoctorManagementPage() {
             "Content-Type": "application/json",
             // token from clerk
             Authorization: `Bearer ${token}`,
-          }
+          },
         }
       );
       const updatedDoctor = response.data;
       // Update the state to reflect the changes
-      setDoctors((prevDoctors) =>
-        prevDoctors.map((doc) =>
-          doc.id === updatedDoctor.id ? updatedDoctor : doc
-        )
-      );
+      // setDoctors((prevDoctors) =>
+      //   prevDoctors.map((doc) =>
+      //     doc.id === updatedDoctor.id ? updatedDoctor : doc
+      //   )
+      // );
+      handleUpdateDoctor(updatedDoctor);
       console.log("data inside UpdateDoctors axios.get", updatedDoctor);
     } catch (error) {
       console.log("error fetching doctors", error);
+    } finally {
+      setIsLoading(false); // Reset loading state
     }
-  
-  setIsLoading(false);
 }
 
 

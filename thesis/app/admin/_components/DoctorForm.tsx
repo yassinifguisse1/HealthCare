@@ -30,7 +30,7 @@ import { toast } from "sonner"
 import { formSchema } from "@/lib/shema";
 import { Doctor } from "@prisma/client";
 import { redirect } from "next/navigation";
-import { Progress } from "@/components/ui/progress";
+import { ProgressDialog } from "./ProgressDialog";
 
 
 
@@ -57,6 +57,9 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
   const { edgestore } = useEdgeStore();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = useState(0);
+  const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
+
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,14 +76,17 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
   });
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
-    // console.log("Form submitted with values:", values); // Debugging log
 
     try {
       setProgress(0);
+      setIsProgressDialogOpen(true);
+
       startTransition(async () => {
         let uploadedImageUrl = initialData?.image || "";
         if (!file) {
           alert("Please select an image.");
+          setIsProgressDialogOpen(false);
+
           return;
         }
         if (file) {
@@ -112,18 +118,21 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
             image: uploadedImageUrl || "/empty.svg",
           },
         });
-        setProgress(100); // Set to 100% after API call
 
         if (response.status === 200 || response.status === 201) {
-          setIsDialogOpen(false); // Close dialog after success
+          setProgress(100); // Set to 100% after API call
+          // Wait for a short moment to ensure the 100% progress is visible
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          setIsProgressDialogOpen(false);
+          setIsDialogOpen(false);
           toast.success(
             initialData
               ? "Doctor updated successfully!"
               : "Doctor added successfully!"
           );
-          onSubmit(response.data); // Pass updated doctor data back to the parent
-          // await revalidateAndRedirect('/admin/doctors', '/admin/doctors');
+          onSubmit(response.data);
           redirect("/admin/doctors");
+        
         } else {
           throw new Error(response.data.error || "Unexpected error occurred.");
         }
@@ -138,6 +147,8 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <ProgressDialog isOpen={isProgressDialogOpen} progress={progress} />
+
         {/* Image Upload */}
         <div className="space-y-4">
           <SingleImageDropzone
@@ -311,18 +322,9 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
             ? "Update Doctor"
             : "Save Doctor"}
         </Button>
-        {/* Progress bar */}
-        {progress > 0 && (
-          <div className="w-full">
-            <Progress value={progress} className="w-full" />
-            <p className="text-sm text-center mt-2">
-              {progress < 100
-                ? `Adding doctor... ${progress}%`
-                : "Doctor added successfully!"}
-            </p>
-          </div>
-        )}
+       
       </form>
     </Form>
   );
 }
+

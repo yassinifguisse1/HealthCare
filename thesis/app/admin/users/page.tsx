@@ -10,7 +10,7 @@ const usersPage = async (params: {
   }) => {
    
     if (!checkRole('admin')) {
-        redirect('/about')
+        redirect('/')
       }
     
       const query = (await params.searchParams).search

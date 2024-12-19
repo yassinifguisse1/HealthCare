@@ -125,10 +125,10 @@ export function AppointmentForm({ doctor }: AppointmentFormProps) {
             </FormItem>
           )}
         />
-        <div className="flex flex-col sm:flex-row justify-between items-center bg-gray-100 p-4 rounded-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-center  p-4 rounded-lg">
           <div>
             <h3 className="text-lg font-semibold">{doctor.name}</h3>
-            <p className="text-sm text-gray-600">{doctor.speciality}</p>
+            <p className="text-sm">{doctor.speciality}</p>
           </div>
           <div className="mt-2 sm:mt-0">
             <p className="text-lg font-bold">Fees: ${doctor.fees}</p>

@@ -10,7 +10,7 @@ export default async function AppointmentPage({ params }: { params: { doctorId: 
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-36">
       <h1 className="text-3xl font-bold mb-6">Book an Appointment with {doctor.name}</h1>
       <AppointmentForm doctor={doctor} />
     </div>

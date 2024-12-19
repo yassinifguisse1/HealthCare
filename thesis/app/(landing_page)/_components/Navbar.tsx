@@ -16,6 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+import { useUser } from "@clerk/nextjs";
 
 
 
@@ -57,7 +58,15 @@ const Navbar = () => {
 }
 
 export default Navbar
-function DesktopNavbar(){
+ function DesktopNavbar(){
+  // check role 
+  // const isAdmin = await checkRole('admin')
+  // Access the current organization and membership
+  const { user } = useUser();
+  const userRole = user?.publicMetadata?.role;
+  const isAdmin = userRole === "admin";
+ 
+
   return (
     <div className=" hidden border-separate border-b transition-all duration-300 md:block z-50 fixed top-0 left-0 right-0 w-full  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/20">
       <nav className="container mx-auto w-full flex items-center justify-between h-[70px] min-h-[70px] transition-colors duration-300 ">
@@ -79,30 +88,40 @@ function DesktopNavbar(){
             ))}
           </div>
           <div className="flex items-center gap-2">
+            <SignedOut>
+              <div className="md:block hidden">
+                <SignInButton>
+                  <Button>Log In</Button>
+                </SignInButton>
+              </div>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/about" className="flex items-center gap-x-3">
+                {isAdmin ? (
+                  <div className="flex items-center gap-x-3">
+                    <Link href="/admin" className="flex items-center gap-x-3">
+                      <Button>Admin Dashboard</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-x-3">
+                    <Link
+                      href="/appointments"
+                      className="flex items-center gap-x-3"
+                    >
+                      <Button>Appointements</Button>
+                    </Link>
+                  </div>
+                )}
 
-              <SignedOut>
-                <div className="md:block hidden">
-                  <SignInButton>
-                    <Button>
-                      Log In
-                    </Button>
-                  </SignInButton>
-                </div>
-              </SignedOut>
-              <SignedIn>
-                <Link href="/about" className="flex items-center gap-x-3">
-                  {/* <Button>
+                {/* <Button>
                     <span>Choose a Doctor</span>
                   </Button> */}
-                  <UserButton userProfileMode="modal" />
-                </Link>
-              </SignedIn>
+                <UserButton userProfileMode="modal" />
+              </Link>
+            </SignedIn>
+          </div>
         </div>
-          
-        </div>
-        
-
-
       </nav>
     </div>
   );
