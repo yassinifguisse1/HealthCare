@@ -25,12 +25,11 @@ import {
   SelectValue,
   SelectTrigger,
 } from "@/components/ui/select";
-import axios from "axios";
 import { toast } from "sonner"
 import { formSchema } from "@/lib/shema";
-import { Doctor } from "@prisma/client";
-import { redirect } from "next/navigation";
+import { Doctor, Speciality } from "@prisma/client";
 import { ProgressDialog } from "./ProgressDialog";
+import { useDoctors } from "@/context/DoctorsContext";
 
 
 
@@ -38,11 +37,11 @@ import { ProgressDialog } from "./ProgressDialog";
 
 type DoctorFormProps = {
   initialData?: Doctor;
-  onSubmit: (data: Doctor) => void;
   setIsDialogOpen: (isOpen: boolean) => void;
+  onDoctorUpdated?: (doctor: Doctor) => void;
 };
 
-const SpecialityOptions = [
+const SpecialityOptions:Speciality[] = [
   "GENERAL_PHYSICIAN",
   "GYNECOLOGIST",
   "DERMATOLOGIST",
@@ -51,13 +50,14 @@ const SpecialityOptions = [
   "GASTROENTEROLOGIST",
 ];
 
-export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFormProps) {
+export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: DoctorFormProps) {
   // const [imagePreview, setImagePreview] = useState(initialData?.image || "");
   const [file, setFile] = React.useState<File>();
   const { edgestore } = useEdgeStore();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = useState(0);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
+  const { addDoctor, updateDoctor } = useDoctors();
 
 
 
@@ -65,7 +65,7 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || "",
-      speciality: initialData?.speciality || "",
+      speciality: initialData?.speciality || undefined,
       degree: initialData?.degree || "",
       experience: initialData?.experience || "",
       about: initialData?.about || "",
@@ -98,48 +98,69 @@ export function DoctorForm({ initialData , onSubmit, setIsDialogOpen}: DoctorFor
             },
           });
           uploadedImageUrl = res.url;
-          console.log(uploadedImageUrl);
-          console.log("clicked = inside");
         }
         setProgress(99); // Set to 50% after image upload
 
         // Determine if it's an edit or create action
-        const method = initialData ? "PUT" : "POST";
+        // const method = initialData ? "PUT" : "POST";
 
-        const endpoint = initialData
-          ? `/api/doctor/${initialData.id}` // Update existing doctor
-          : `/api/doctor`; // Add new doctor
+        // const endpoint = initialData
+        //   ? `/api/doctor/${initialData.id}` // Update existing doctor
+        //   : `/api/doctor`; // Add new doctor
 
-        const response = await axios({
-          method,
-          url: endpoint,
-          data: {
-            ...values,
-            image: uploadedImageUrl || "/empty.svg",
-          },
-        });
+        // const response = await axios({
+        //   method,
+        //   url: endpoint,
+        //   data: {
+        //     ...values,
+        //     image: uploadedImageUrl || "/empty.svg",
+        //   },
+        // });
+        const doctorData = {
+          ...values,
+          image: uploadedImageUrl || "/empty.svg",
+          speciality: values.speciality as Speciality,
+        };
+        let updatedDoctor: Doctor;
 
-        if (response.status === 200 || response.status === 201) {
-          setProgress(100); // Set to 100% after API call
-          // Wait for a short moment to ensure the 100% progress is visible
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          setIsProgressDialogOpen(false);
-          setIsDialogOpen(false);
-          toast.success(
-            initialData
-              ? "Doctor updated successfully!"
-              : "Doctor added successfully!"
-          );
-          onSubmit(response.data);
-          redirect("/admin/doctors");
-        
+        if (initialData) {
+          updatedDoctor = await updateDoctor(initialData.id, doctorData);
+          toast.success("Doctor updated successfully!");
+          
         } else {
-          throw new Error(response.data.error || "Unexpected error occurred.");
+          updatedDoctor = await addDoctor(doctorData);
+          toast.success("Doctor added successfully!");
         }
+        setProgress(100);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        setIsProgressDialogOpen(false);
+        setIsDialogOpen(false);
+         // Use the updatedDoctor data
+         if (onDoctorUpdated) {
+          onDoctorUpdated(updatedDoctor);
+        }
+
+        // if (response.status === 200 || response.status === 201) {
+        //   setProgress(100); // Set to 100% after API call
+        //   // Wait for a short moment to ensure the 100% progress is visible
+        //   await new Promise((resolve) => setTimeout(resolve, 500));
+        //   setIsProgressDialogOpen(false);
+        //   setIsDialogOpen(false);
+        //   toast.success(
+        //     initialData
+        //       ? "Doctor updated successfully!"
+        //       : "Doctor added successfully!"
+        //   );
+        //   onSubmit(response.data);
+        //   redirect("/admin/doctors");
+        
+        // } else {
+        //   throw new Error(response.data.error || "Unexpected error occurred.");
+        // }
       });
     } catch (err) {
       console.error(err);
-      toast.error("Event has not been created");
+      toast.error(initialData ? "Failed to update doctor" : "Failed to add doctor");
       setProgress(0);
     }
   }

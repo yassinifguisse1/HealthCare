@@ -1,3 +1,4 @@
+import { Speciality } from "@prisma/client";
 import { z } from "zod";
 
 export const formSchema = z.object({
@@ -7,9 +8,7 @@ export const formSchema = z.object({
   }).min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  speciality: z.string().min(2, {
-    message: "Speciality must be at least 2 characters.",
-  }),
+  speciality: z.nativeEnum(Speciality),
   degree: z.string({
     required_error:"degree is required", 
 
@@ -40,9 +39,7 @@ export const updateFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }).optional(),
-  speciality: z.string().min(2, {
-    message: "Speciality must be at least 2 characters.",
-  }).optional(),
+  speciality: z.nativeEnum(Speciality),
   degree: z.string().min(2, {
     message: "Degree must be at least 2 characters.",
   }).optional(),

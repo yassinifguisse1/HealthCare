@@ -7,72 +7,97 @@ import Link from "next/link";
 import { Doctor } from "@prisma/client";
 import { formatDistance } from "date-fns";
 import { Edit, Trash } from "lucide-react";
-import axios from "axios";
+// import axios from "axios";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
-import { useAuth } from "@clerk/nextjs";
+// import { useAuth } from "@clerk/nextjs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useDoctors } from "@/context/DoctorsContext";
+import { DoctorListSkeleton } from "@/app/(landing_page)/_components/DoctorListSkeleton";
+
 
 type DoctorListProps = {
-  doctors: Doctor[];
+  // doctors: Doctor[];
   onEdit: (doctor: Doctor) => void;
-  onDelete: (id: string) => void;
+  // onDelete: (id: string) => void;
 };
 
-export function DoctorList({ doctors, onEdit, onDelete }: DoctorListProps) {
+export function DoctorList({  onEdit }: DoctorListProps) {
+  const { doctors, deleteDoctor, isLoading } = useDoctors();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { getToken } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // const { getToken } = useAuth();
 
   const handleDelete = (doctor: Doctor) => {
     setDoctorToDelete(doctor);
     setIsDialogOpen(true);
   };
-  const deleteDoctor = async (doctorId: string) => {
-    setIsLoading(true); // Set loading state to true
+  // const deleteDoctor = async (doctorId: string) => {
+  //   setIsLoading(true); // Set loading state to true
 
-    try {
-      const token = await getToken({ template: "TOKEN_Healthcare" });
-      const response = await axios.delete(`/api/doctor/${doctorId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log("Response data:", response.data);
-      console.log("Status:", response.status);
+  //   try {
+  //     const token = await getToken({ template: "TOKEN_Healthcare" });
+  //     const response = await axios.delete(`/api/doctor/${doctorId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     console.log("Response data:", response.data);
+  //     console.log("Status:", response.status);
 
-      if (response.status === 200) {
-        toast.success("Doctor deleted successfully!");
+  //     if (response.status === 200) {
+  //       toast.success("Doctor deleted successfully!");
 
-        onDelete(doctorId);
-      }
-    } catch (error) {
-      console.error("Error deleting doctor:", error);
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in and try again.");
-        } else if (error.response?.status === 404) {
-          toast.error("Doctor not found. It may have been already deleted.");
-        } else {
-          toast.error("Failed to delete doctor. Please try again later.");
-        }
-      } else {
-        toast.error("An unexpected error occurred. Please try again.");
-      }
-    } finally {
-      setIsLoading(false); // Reset loading state
-    }
-  };
+  //       onDelete(doctorId);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting doctor:", error);
+  //     if (axios.isAxiosError(error)) {
+  //       if (error.response?.status === 401) {
+  //         toast.error("Unauthorized. Please log in and try again.");
+  //       } else if (error.response?.status === 404) {
+  //         toast.error("Doctor not found. It may have been already deleted.");
+  //       } else {
+  //         toast.error("Failed to delete doctor. Please try again later.");
+  //       }
+  //     } else {
+  //       toast.error("An unexpected error occurred. Please try again.");
+  //     }
+  //   } finally {
+  //     setIsLoading(false); // Reset loading state
+  //   }
+  // };
 
   const confirmDelete = async () => {
     if (doctorToDelete) {
-      await deleteDoctor(doctorToDelete.id); // Call your delete function here
-      setIsDialogOpen(false);
-      setDoctorToDelete(null);
+      setIsDeleting(true);
+      try {
+        await deleteDoctor(doctorToDelete.id);
+        toast.success("Doctor deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting doctor:", error);
+        toast.error("Failed to delete doctor. Please try again.");
+      } finally {
+        setIsDeleting(false);
+        setIsDialogOpen(false);
+        setDoctorToDelete(null);
+      }
     }
   };
+
+  // const confirmDelete = async () => {
+  //   if (doctorToDelete) {
+  //     await deleteDoctor(doctorToDelete.id); // Call your delete function here
+  //     setIsDialogOpen(false);
+  //     setDoctorToDelete(null);
+  //   }
+  // };
+  if (isLoading) {
+    return <DoctorListSkeleton />;
+  }
 
   return (
     <div>
@@ -149,7 +174,7 @@ export function DoctorList({ doctors, onEdit, onDelete }: DoctorListProps) {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={confirmDelete}
         doctorName={doctorToDelete?.name || ""}
-        isLoading={isLoading}
+        isLoading={isDeleting}
       />
     </div>
   );
@@ -228,3 +253,4 @@ function DoctorCard({
     </Card>
   );
 }
+  

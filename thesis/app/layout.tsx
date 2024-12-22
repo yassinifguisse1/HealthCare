@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { EdgeStoreProvider } from '../lib/edgestore';
 import { Toaster } from "@/components/ui/sonner"
+import { DoctorsProvider } from "@/context/DoctorsContext";
 
 
 
@@ -35,10 +36,12 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <EdgeStoreProvider>
-          <Toaster richColors position="top-right"/>
+            <DoctorsProvider>
+              <Toaster richColors position="top-right" />
 
-            {children}
-            </EdgeStoreProvider>
+              {children}
+            </DoctorsProvider>
+          </EdgeStoreProvider>
         </body>
       </html>
     </ClerkProvider>
