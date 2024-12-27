@@ -13,6 +13,8 @@ interface DoctorsContextType {
   addDoctor: (newDoctor: Partial<Doctor>) => Promise<Doctor>
   updateDoctor: (id: string, updatedDoctor: Partial<Doctor>) => Promise<Doctor>
   deleteDoctor: (id: string) => Promise<void>;
+  getDoctorById: (id: string) => Promise<Doctor | null>;
+
 }
 
 const DoctorsContext = createContext<DoctorsContextType | undefined>(undefined);
@@ -101,6 +103,22 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       throw error;
     }
   };
+  const getDoctorById = async (id: string) => {
+    try {
+      const token = await getToken({ template: "TOKEN_Healthcare" });
+      const response = await axios.get(`http://localhost:3000/api/doctor/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-store"
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching doctor:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     fetchDoctors();
@@ -114,6 +132,7 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     addDoctor,
     updateDoctor,
     deleteDoctor,
+    getDoctorById
   };
 
   return <DoctorsContext.Provider value={value}>{children}</DoctorsContext.Provider>;

@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import { Doctor, Speciality } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import DoctorList from './DoctorList'
-import { useAuth } from '@clerk/clerk-react'
+import { useDoctors } from '@/context/DoctorsContext'
 
 
 const specialties: Speciality[] = [
@@ -19,45 +18,21 @@ const specialties: Speciality[] = [
 ]
 
 export default function AppointmentPageClient() {
-  const [doctors, setDoctors] = useState<Doctor[]>([])
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([])
   const [selectedSpecialty, setSelectedSpecialty] = useState<Speciality | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { getToken} = useAuth()
+  const { doctors, isLoading , error  } = useDoctors();
 
-  
   useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const token = await getToken({ template: "TOKEN_Healthcare" });
-
-        const response = await axios.get<Doctor[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/doctor`,{
-          headers: {
-            "Content-Type": "application/json",
-            // token from clerk
-            Authorization: `Bearer ${token}`,
-            "Cache-Control": "no-store"  // Suggestion to discourage caching
-          }
-        })
-
-        const data = response.data;
-        setDoctors(data)        
-        setFilteredDoctors(data)
-        setIsLoading(false)
-      } catch (err) {
-        setError('Failed to fetch doctors. Please try again later.')
-        setIsLoading(false)
-      }
+    if (doctors) {
+      setFilteredDoctors(doctors);
     }
-
-    fetchDoctors()
-  }, [])
+  }, [doctors]);
 
   const handleSpecialtyClick = (specialty: Speciality) => {
     setSelectedSpecialty(specialty)
     const filtered = doctors.filter(doctor => doctor.speciality === specialty)
     setFilteredDoctors(filtered)
+
   }
 
   const handleClearFilter = () => {
@@ -74,7 +49,7 @@ export default function AppointmentPageClient() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen py-16">
+  <div className="flex flex-col md:flex-row min-h-screen py-[68px]">
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-gray-100 p-4">
         <h2 className="text-xl font-bold mb-4">Specialties</h2>

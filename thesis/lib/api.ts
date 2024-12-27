@@ -1,19 +1,22 @@
-import { Doctor } from '@/types/doctor'
+import { getAuth } from "@clerk/nextjs/server";
+import axios from "axios";
+import { NextApiRequest } from "next";
 
-export async function getDoctorById(id: string): Promise<Doctor | null> {
-  // In a real application, you would fetch this data from your backend
-  // For this example, we'll return dummy data
-  return {
-    id,
-    name: "Dr. Jane Smith",
-    image: "/placeholder.svg?height=400&width=400",
-    speciality: "Cardiologist",
-    degree: "MD, FACC",
-    experience: "15 Years",
-    about: "Dr. Jane Smith is a board-certified cardiologist with over 15 years of experience in treating heart conditions.",
-    fees: 150,
-    addressLine1: "123 Medical Center Blvd",
-    addressLine2: "Suite 456, Healthville, HV 12345",
-    createdAt: "2023-01-15T00:00:00Z"
+const getDoctorById = async (id: string , req:NextApiRequest) => {
+    const { getToken } = getAuth(req);
+  
+  try {
+    const token = await getToken({ template: "TOKEN_Healthcare" });
+    const response = await axios.get(`http://localhost:3000/api/doctor/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-store"
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching doctor:", error);
+    return null;
   }
-}
+};

@@ -26,14 +26,15 @@ model Doctor {
 
 model Appointment {
   id                  String            @id @default(cuid())
-  patientId           String
+  userId              String
   patientName         String
+  patientEmail        String
   doctorId            String
   appointmentDateTime DateTime
   status              AppointmentStatus
   fees                Float
   paymentStatus       PaymentStatus
-  paymentMethod       String?
+  paymentMethod       String
   transactionId       String?
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
@@ -41,7 +42,7 @@ model Appointment {
   doctor              Doctor            @relation(fields: [doctorId], references: [id])
   Notifications       Notification[]
 
-  @@index([patientId])
+  @@index([userId])
   @@index([doctorId])
 }
 
@@ -86,4 +87,8 @@ enum PaymentStatus {
   PAID
   PENDING
   FAILED
+}
+enum PaymentMethod {
+  CASH
+  CARD
 }

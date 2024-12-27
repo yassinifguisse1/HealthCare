@@ -62,3 +62,29 @@ export const updateFormSchema = z.object({
   }).optional(),
   addressLine2: z.string().optional(),
 });
+export const appointmentSchema = z.object({
+  patientName: z.string({
+      required_error: "Patient name is required.",
+      invalid_type_error:"name shoud be of type string",
+    })
+    .min(2, {
+      message: "Name must be at least 2 characters.",
+    }),
+
+  patientEmail: z.string({
+    required_error: "Email address is required.",
+    invalid_type_error: "Email address must be a string.",
+  }).email({
+    message: "Please enter a valid email address."
+  }),
+  appointmentDate: z.coerce.date({
+    required_error: "Please select a date for the appointment.",
+  }),
+  appointmentTime: z.string({
+    required_error: "Please select a time for the appointment.",
+  }),
+  paymentMethod: z.enum(["CASH", "CARD"], {
+    required_error: "Please select a payment method.",
+  }),
+  notes: z.string().optional(),
+});
