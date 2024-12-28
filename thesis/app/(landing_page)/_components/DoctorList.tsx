@@ -75,17 +75,24 @@ export default DoctorList
   
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
-    <Card className="overflow-hidden group cursor-pointer relative">
+    <Card className="overflow-hidden group cursor-pointer relative ">
       <Link href={`/appointments/${doctor.id}`}>
         <div className="relative aspect-square">
           <Image
             src={doctor.image || "/empty.svg"}
             alt={doctor.name || "Doctor Image"}
-            className="object-cover transition-opacity duration-300"
+            className="object-cover rounded-xl transition-opacity duration-300"
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             fill
             priority
           />
+          {/* <Image
+            src={doctor.image || "/empty.svg"}
+            alt={doctor.name || "Doctor Image"}
+            height="1000"
+            width="1000"
+            className="h-60 w-full object-cover rounded-xl group-hover/card:shadow-xl"
+          /> */}
           <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
             <div className="text-center flex flex-col items-center justify-center">
               <Badge className="text-xs mb-2 font-semibold truncate">
@@ -105,7 +112,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
           </p>
         </CardContent>
       </Link>
-      <CardFooter className="flex justify-center items-center pb-9">
+      <CardFooter className="flex justify-center items-center pb-3">
         <Link href={`/appointments/${doctor.id}`}>
           <Button variant="outline" className="w-full">
             Book Appointment

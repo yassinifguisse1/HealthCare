@@ -75,9 +75,7 @@ export async function GET(request: NextRequest, { params }: { params: { doctorId
     // Filter available slots by removing booked slots
     const availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot))
 
-//    if (availableSlots.length === 0) {
-//     return NextResponse.json({ message: 'No available slots' }, { status: 200 });
-// }
+
 
     return NextResponse.json(availableSlots)
   } catch (error) {
