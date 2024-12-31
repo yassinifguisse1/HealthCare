@@ -9,45 +9,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const searchParams = new URL(request.url).searchParams
-    const page = parseInt(searchParams.get("page") || "1")
-    const pageSize = parseInt(searchParams.get("pageSize") || "10")
-    const skip = (page - 1) * pageSize
-
-    // Get total count for pagination
-    const total = await prisma.appointment.count()
-
-    // Get paginated appointments
     const appointments = await prisma.appointment.findMany({
+      where: {
+        userId: userId,
+      },
       include: {
-        doctor: true,
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            speciality: true,
+            image: true,
+          },
+        },
       },
       orderBy: {
         appointmentDateTime: 'desc',
       },
-      skip,
-      take: pageSize,
     })
 
-    const formattedAppointments = appointments.map(appointment => ({
-      id: appointment.id,
-      shortId: appointment.id.slice(-6).toUpperCase(), // Only show last 6 characters
-      patient: appointment.patientName,
-      status: appointment.status,
-      appointment: appointment.appointmentDateTime.toISOString(),
-      doctor: {
-        name: appointment.doctor.name,
-        image: appointment.doctor.image,
-        speciality: appointment.doctor.speciality
-      },
-      fees: appointment.fees
-    }))
-
-    return NextResponse.json({
-      appointments: formattedAppointments,
-      pageCount: Math.ceil(total / pageSize),
-      total
-    })
+    return NextResponse.json(appointments)
   } catch (error) {
     console.error("Error fetching appointments:", error)
     return NextResponse.json(
@@ -56,3 +37,4 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+

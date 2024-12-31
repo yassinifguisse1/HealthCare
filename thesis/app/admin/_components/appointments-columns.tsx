@@ -20,7 +20,6 @@ function StatusBadge({ status }: { status: string }) {
     PENDING: "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20",
     SCHEDULED: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
     CANCELLED: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
-    COMPLETED: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
   }
 
   return (
@@ -41,12 +40,22 @@ function FeesBadge({ fees }: { fees: number }) {
   )
 }
 
-export const columns: ColumnDef<Appointment>[] = [
-    {
-        accessorKey: "shortId",
-        header: "ID",
-        cell: ({ row }) => <div className="w-[80px] font-mono">{row.getValue("shortId")}</div>,
-      },
+export const columns = (
+  handleViewDetails: (appointment: Appointment) => void,
+  handleUpdateStatus: (appointment: Appointment) => void,
+  handleCancelAppointment: (appointment: Appointment) => void,
+  handleViewConfirmation: (appointment: Appointment) => void
+): ColumnDef<Appointment>[] => [
+  {
+    accessorKey: "shortId",
+    header: "ID",
+    cell: ({ row }) => <div className="w-[80px] font-mono">{row.getValue("shortId")}</div>,
+  },
+  {
+    accessorKey: "patient",
+    header: "Patient",
+    cell: ({ row }) => <div>{row.getValue("patient")}</div>,
+  },
   {
     accessorKey: "doctor.name",
     header: "Doctor",
@@ -56,14 +65,14 @@ export const columns: ColumnDef<Appointment>[] = [
         <div className="flex items-center gap-2">
           <Avatar>
             <AvatarImage
-              src={doctor.image || "/empty.svg"}
+              src={doctor.image || "/placeholder.svg?height=32&width=32"}
               alt={doctor.name}
             />
             <AvatarFallback>{doctor.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <span>Dr. {doctor.name}</span>
         </div>
-      );
+      )
     },
   },
   {
@@ -75,8 +84,8 @@ export const columns: ColumnDef<Appointment>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string
-      return <StatusBadge status={status} />
+      const appointment = row.original;
+      return <StatusBadge status={appointment.status} />;
     },
   },
   {
@@ -117,14 +126,24 @@ export const columns: ColumnDef<Appointment>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => handleViewDetails(appointment)}>
+              View details
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleUpdateStatus(appointment)}>
+              Update status
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleCancelAppointment(appointment)}>
+              Cancel appointment
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleViewConfirmation(appointment)}>
+              View confirmation
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(appointment.id)}
             >
               Copy appointment ID
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Update status</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -132,3 +151,13 @@ export const columns: ColumnDef<Appointment>[] = [
   },
 ]
 
+export function getAppointmentStatus(appointmentDate: Date): "PENDING" | "SCHEDULED" | "CANCELLED" {
+  const now = new Date()
+  if (appointmentDate.toDateString() === now.toDateString()) {
+    return "SCHEDULED"
+  } else if (appointmentDate > now) {
+    return "PENDING"
+  } else {
+    return "CANCELLED"
+  }
+}

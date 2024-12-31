@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppointmentsTable } from "../_components/appointments-table"

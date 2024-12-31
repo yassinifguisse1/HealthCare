@@ -165,90 +165,67 @@ function combineDateAndTime(date: Date, time: string): Date {
 
 
 
-// // Mock or Database configuration for working hours (customize as needed)
-// const WORKING_HOURS = {
-//   start: '09:00 AM',
-//   end: '05:00 PM',
-//   intervalMinutes: 60, // Slot duration in minutes
-// };
 
-// // Utility to generate time slots
-// function generateTimeSlots(start: string, end: string, interval: number) {
-//   const startTime = new Date(`1970-01-01T${start}`);
-//   const endTime = new Date(`1970-01-01T${end}`);
-//   const slots = [];
 
-//   while (startTime < endTime) {
-//     slots.push(
-//       startTime.toLocaleTimeString('en-US', {
-//         hour: '2-digit',
-//         minute: '2-digit',
-//         hour12: true,
-//       })
-//     );
-//     startTime.setMinutes(startTime.getMinutes() + interval);
-//   }
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { doctorId: string } }
+) {
+  try {
+    const { userId } = getAuth(request)
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-//   return slots;
-// }
-// // Fetch time slots handler
-// export default async function handler(req: NextRequest, res: NextResponse) {
-//   const { method } = req;
-//   const { doctorId } = req.paramd;
-//   const { date } = req.query; // Date should be passed as a query parameter
+    const { status } = await request.json()
+    const appointmentId = params.doctorId
 
-//   if (method !== 'GET') {
-//     return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
-//   }
+    const updatedAppointment = await prisma.appointment.update({
+      where: {
+        id: appointmentId,
+        userId: userId,
+      },
+      data: {
+        status,
+      },
+    })
 
-//   if (!doctorId || !date) {
-//     return NextResponse.json({ error: 'Doctor ID and date are required' }, { status: 400 })
-//   }
+    return NextResponse.json(updatedAppointment)
+  } catch (error) {
+    console.error("Error updating appointment:", error)
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
+  }
+}
 
-//   try {
-//     const selectedDate = new Date(date as string);
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { doctorId: string } }
+) {
+  try {
+    const { userId } = getAuth(request)
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-//     // Validate the provided date
-//     if (isNaN(selectedDate.getTime())) {
-//       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 })
-//     }
+    const appointmentId = params.doctorId
 
-//     // Generate all possible time slots for the working hours
-//     const allSlots = generateTimeSlots(
-//       WORKING_HOURS.start,
-//       WORKING_HOURS.end,
-//       WORKING_HOURS.intervalMinutes
-//     );
+    await prisma.appointment.delete({
+      where: {
+        id: appointmentId,
+        userId: userId,
+      },
+    })
 
-//     // Fetch appointments for the doctor on the selected date
-//     const existingAppointments = await prisma.appointment.findMany({
-//       where: {
-//         doctorId: doctorId as string,
-//         appointmentDateTime: {
-//           gte: startOfDay(selectedDate),
-//           lte: endOfDay(selectedDate),
-//         },
-//       },
-//       select: {
-//         appointmentDateTime: true,
-//       },
-//     });
+    return NextResponse.json({ message: "Appointment deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting appointment:", error)
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
+  }
+}
 
-//     // Extract booked slots
-//     const bookedSlots = existingAppointments.map((appointment) =>
-//       new Date(appointment.appointmentDateTime).toLocaleTimeString('en-US', {
-//         hour: '2-digit',
-//         minute: '2-digit',
-//         hour12: true,
-//       })
-//     );
-
-//     // Filter available slots by removing booked slots
-//     const availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
-
-//     return NextResponse.json(availableSlots, { status: 200 });
-//   } catch (error) {
-//     console.error('Error fetching time slots:', error);
-//     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
-//   }
-// }
