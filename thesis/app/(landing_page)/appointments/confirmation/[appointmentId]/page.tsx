@@ -9,6 +9,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CalendarDays, Clock, Medal, Stethoscope, Wallet } from 'lucide-react'
+import { ConfettiEffect } from '@/app/(landing_page)/_components/confetti-effect'
 
 type Appointment = {
   id: string
@@ -24,6 +25,7 @@ export default function AppointmentConfirmation({ params }: { params: { appointm
   const [appointment, setAppointment] = useState<Appointment | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
   const { getToken } = useAuth()
 
   useEffect(() => {
@@ -49,7 +51,7 @@ export default function AppointmentConfirmation({ params }: { params: { appointm
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 min-h-screen flex justify-center items-center">
+      <div className="container mx-auto px-4 py-8 h-[calc(100vh-90px)] flex justify-center items-center">
         <Card className="w-full max-w-lg mx-auto">
           <CardHeader>
             <Skeleton className="h-8 w-3/4 mx-auto" />
@@ -70,11 +72,15 @@ export default function AppointmentConfirmation({ params }: { params: { appointm
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>
+    return <div className="text-center text-red-500 h-[calc(100vh-80px)]">{error}</div>
   }
 
   if (!appointment) {
-    return <div className="text-center h-screen">Appointment not found</div>
+    return (
+      <div className="container mx-auto px-4 py-8 h-[calc(100vh-80px)] flex justify-center items-center">
+        <p> Appointment not found</p>
+      </div>
+    );
   }
   return (
     // <div className="container mx-auto px-4 py-8 min-h-screen flex justify-center items-center">
@@ -101,8 +107,8 @@ export default function AppointmentConfirmation({ params }: { params: { appointm
     //     </CardContent>
     //   </Card>
     // </div>
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-purple-600 to-purple-400 p-4 md:p-8">
-    {/* <ConfettiEffect /> */}
+    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-purple-600r to-purple-400r p-4 md:p-8">
+   <ConfettiEffect />
     <div className="container mx-auto max-w-2xl ">
       <Card className="overflow-hidden">
         <div className="relative">

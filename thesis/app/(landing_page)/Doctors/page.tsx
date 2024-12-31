@@ -2,7 +2,9 @@ import React from 'react'
 
 const AllDoctorsPage = () => {
   return (
-    <div>AllDoctorsPage</div>
+    <div className="h-[calc(100vh-80px)] flex flex-col">
+      AllDoctorsPage
+      </div>
   )
 }
 

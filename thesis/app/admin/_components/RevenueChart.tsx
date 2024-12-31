@@ -1,6 +1,7 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
+import { useEffect, useState } from "react"
 
 import {
   Card,
@@ -15,93 +16,117 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
+import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
+import { Skeleton } from "@/components/ui/skeleton"
+import { TrendingUp } from 'lucide-react'
+
+type RevenueData = {
+  month: string
+  revenue: number
+}
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  revenue: {
+    label: "Revenue",
     color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-  label: {
-    color: "hsl(var(--background))",
   },
 } satisfies ChartConfig
 
 export function RevenueChart() {
+  const [data, setData] = useState<RevenueData[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { getToken } = useAuth()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await getToken()
+        const response = await axios.get("/api/admin/charts", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        setData(response.data.revenue)
+      } catch (error) {
+        console.error("Error fetching revenue data:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [getToken])
+
+  if (isLoading) {
+    return (
+      <Card className="col-span-2 border-2">
+        <CardHeader>
+          <Skeleton className="h-8 w-[200px]" />
+          <Skeleton className="h-4 w-[300px]" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[400px] w-full" />
+        </CardContent>
+      </Card>
+    )
+  }
+  const totalRevenue = data.reduce((acc, curr) => acc + curr.revenue, 0)
+  const lastMonthRevenue = data[data.length - 2]?.revenue || 0
+  const currentMonthRevenue = data[data.length - 1]?.revenue || 0
+  const revenueGrowth = ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+
   return (
-    <Card className=" border-2 col-span-2">
-      <CardHeader>
-        <CardTitle>Bar Chart - Custom Label</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart
-           accessibilityLayer
-            data={chartData}
-            layout="vertical"
-            margin={{
-              right: 16,
-            }}
-          >
-            <CartesianGrid horizontal={false} />
-            <YAxis
-              dataKey="month"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-              hide
+
+    <Card className="border-2 col-span-2">
+    <CardHeader>
+      <CardTitle>Revenue Overview</CardTitle>
+      <CardDescription className="flex items-center gap-2">
+        Total Revenue: ${totalRevenue.toLocaleString()}
+        <span className="flex items-center gap-1 text-green-500">
+          <TrendingUp className="h-4 w-4" />
+          {revenueGrowth.toFixed(1)}%
+        </span>
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <ChartContainer config={chartConfig} className="h-[400px]n">
+        <BarChart
+        accessibilityLayer
+          data={data}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid  vertical={false} />
+          <XAxis
+            dataKey="month"
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => `$${value}`}
+          />
+          <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+          <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]}>
+          <LabelList
+                dataKey="revenue"
+                position="top"
+              className="fill-foreground"
+              fontSize={12}
+              formatter={(value: number) => `$${value}`}
             />
-            <XAxis dataKey="desktop" type="number" hide />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <Bar
-              dataKey="desktop"
-              layout="vertical"
-              fill="var(--color-desktop)"
-              radius={4}
-            >
-              <LabelList
-                dataKey="month"
-                position="insideLeft"
-                offset={8}
-                className="fill-[--color-label]"
-                fontSize={12}
-              />
-              <LabelList
-                dataKey="desktop"
-                position="right"
-                offset={8}
-                className="fill-foreground"
-                fontSize={12}
-              />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-      {/* <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter> */}
-    </Card>
+          </Bar>
+        </BarChart>
+      </ChartContainer>
+    </CardContent>
+  </Card>
   )
 }

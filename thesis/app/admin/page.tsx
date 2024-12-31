@@ -1,78 +1,5 @@
-// import { redirect } from 'next/navigation'
-// import { checkRole } from '@/utils/roles'
-// import { SearchUsers } from './_components/SearchUsers'
-// import { clerkClient } from '@clerk/nextjs/server'
-// import { removeRole, setRole } from './_actions'
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import { Activity, Users, DollarSign, TrendingUp } from 'lucide-react'
+"use client"
 
-// export default async function AdminDashboard(params: {
-//   searchParams: Promise<{ search?: string }>
-// }) {
-//   if (!checkRole('admin')) {
-//     redirect('/about')
-//   }
-
-//   const query = (await params.searchParams).search
-
-//   const client = await clerkClient()
-
-//   let users = []
-//   let error = null
-
-//   if (query) {
-//     try {
-//       const response = await client.users.getUserList({ query })
-//       users = response.data
-//     } catch (err) {
-//       error = "An error occurred while fetching users. Please try again."
-//       console.error(err)
-//     }
-//   }
-//   return (
-//     <>
-//       <p>This is the protected admin dashboard restricted to users with the `admin` role.</p>
-
-//       <SearchUsers />
-
-//       {users.map((user) => {
-//         return (
-//           <div key={user.id}>
-//             <div>
-//               {user.firstName} {user.lastName}
-//             </div>
-
-//             <div>
-//               {
-//                 user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)
-//                   ?.emailAddress
-//               }
-//             </div>
-
-//             <div>{user.publicMetadata.role as string}</div>
-
-//             <form action={setRole}>
-//               <input type="hidden" value={user.id} name="id" />
-//               <input type="hidden" value="admin" name="role" />
-//               <button type="submit">Make Admin</button>
-//             </form>
-
-//             <form action={setRole}>
-//               <input type="hidden" value={user.id} name="id" />
-//               <input type="hidden" value="moderator" name="role" />
-//               <button type="submit">Make Moderator</button>
-//             </form>
-
-//             <form action={removeRole}>
-//               <input type="hidden" value={user.id} name="id" />
-//               <button type="submit">Remove Role</button>
-//             </form>
-//           </div>
-//         )
-//       })}
-//     </>
-//   )
-// }
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, Users, DollarSign, TrendingUp } from 'lucide-react'
@@ -80,8 +7,44 @@ import Appointments from "./_components/Appointements"
 import Header from "./_components/Header"
 import { AppointmentsChart } from "./_components/AppointmentsChart"
 import { RevenueChart } from "./_components/RevenueChart"
+import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
+import { toast } from "sonner"
+import { useEffect, useState } from "react"
+import { DashboardCardsSkeleton } from "./_components/dashboard-cards-skeleton"
 
+
+type DashboardStats = {
+  totalPatients: { count: number; change: string }
+  appointments: { count: number; change: number }
+  revenue: { amount: number; change: string }
+  satisfaction: { rate: number; change: string }
+}
 export default  function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const { getToken } = useAuth()
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = await getToken({ template: "TOKEN_Healthcare" })
+        const response = await axios.get("/api/admin/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setStats(response.data)
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error)
+        toast.error("Failed to load dashboard statistics")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [getToken])
   
 
   return (
@@ -89,52 +52,60 @@ export default  function AdminDashboard() {
       
       <Header/>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-indigo-800 opacity-90"></div>
-          <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Total Patients</CardTitle>
-            <Users className="h-4 w-4 text-purple-200" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold text-white">10,482</div>
-            <p className="text-xs text-purple-200">+20.1% from last month</p>
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-cyan-800 opacity-90"></div>
-          <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Appointments</CardTitle>
-            <Activity className="h-4 w-4 text-blue-200" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold text-white">573</div>
-            <p className="text-xs text-blue-200">+201 since yesterday</p>
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-emerald-800 opacity-90"></div>
-          <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-200" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold text-white">$54,231</div>
-            <p className="text-xs text-green-200">+19% from last month</p>
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900 to-amber-800 opacity-90"></div>
-          <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Patient Satisfaction</CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-200" />
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold text-white">98.2%</div>
-            <p className="text-xs text-orange-200">+2.1% from last month</p>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <DashboardCardsSkeleton />
+      ) : stats ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-indigo-800 opacity-90"></div>
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Total Patients</CardTitle>
+              <Users className="h-4 w-4 text-purple-200" />
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-2xl font-bold text-white">{stats.totalPatients.count.toLocaleString()}</div>
+              <p className="text-xs text-purple-200">+{stats.totalPatients.change}% from last month</p>
+            </CardContent>
+          </Card>
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-cyan-800 opacity-90"></div>
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Appointments</CardTitle>
+              <Activity className="h-4 w-4 text-blue-200" />
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-2xl font-bold text-white">{stats.appointments.count.toLocaleString()}</div>
+              <p className="text-xs text-blue-200">+{stats.appointments.change} since yesterday</p>
+            </CardContent>
+          </Card>
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-emerald-800 opacity-90"></div>
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-200" />
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-2xl font-bold text-white">
+                ${stats.revenue.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-green-200">+{stats.revenue.change}% from last month</p>
+            </CardContent>
+          </Card>
+          <Card className="relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-900 to-amber-800 opacity-90"></div>
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Patient Satisfaction</CardTitle>
+              <TrendingUp className="h-4 w-4 text-orange-200" />
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-2xl font-bold text-white">{stats.satisfaction.rate}%</div>
+              <p className="text-xs text-orange-200">+{stats.satisfaction.change}% from last month</p>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="text-center text-muted-foreground">Failed to load dashboard statistics</div>
+      )}
       <Appointments/>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
