@@ -1,4 +1,4 @@
-import { Speciality } from "@prisma/client";
+import { Speciality,PaymentMethod } from "@prisma/client";
 import { z } from "zod";
 
 export const formSchema = z.object({
@@ -83,8 +83,9 @@ export const appointmentSchema = z.object({
   appointmentTime: z.string({
     required_error: "Please select a time for the appointment.",
   }),
-  paymentMethod: z.enum(["CASH", "CARD"], {
+  paymentMethod: z.nativeEnum(PaymentMethod, {
     required_error: "Please select a payment method.",
   }),
   notes: z.string().optional(),
 });
+export type AppointmentFormData = z.infer<typeof appointmentSchema>;

@@ -1,10 +1,10 @@
 "use client"
 
-import { useState,useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Doctor } from '@prisma/client'
+import { Doctor, PaymentMethod } from '@prisma/client'
 import { Calendar } from '@/components/ui/calendar'
 import { TimeSlots } from './TimeSlots'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,104 +24,129 @@ import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon, CreditCard, Wallet } from 'lucide-react'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { appointmentSchema } from '@/lib/shema'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { useAuth } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import { AppointmentFormData, appointmentSchema } from '@/lib/shema'
 
-
-// const formSchema = z.object({
-//   patientName: z.string({
-//       required_error: "Patient name is required.",
-//       invalid_type_error:"name shoud be of type string",
-//     })
-//     .min(2, {
-//       message: "Name must be at least 2 characters.",
-//     }),
-
-//   patientEmail: z.string({
-//     required_error: "Email address is required.",
-//     invalid_type_error: "Email address must be a string.",
-//   }).email({
-//     message: "Please enter a valid email address."
-//   }),
-//   appointmentDate: z.date({
-//     required_error: "Please select a date for the appointment.",
-//   }),
-//   appointmentTime: z.string({
-//     required_error: "Please select a time for the appointment.",
-//   }),
-//   paymentMethod: z.enum(["CASH", "CARD"], {
-//     required_error: "Please select a payment method.",
-//   }),
-//   notes: z.string().optional(),
-// });
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 type AppointmentFormProps = {
   doctor: Doctor,
-  doctorId:string
+  doctorId: string
 }
 
-export function AppointmentForm({ doctor , doctorId }: AppointmentFormProps) {
+function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
-    const [isPending, startTransition] = useTransition();
-  
-  const { getToken } = useAuth();
+  const [isPending, startTransition] = useTransition()
+  const [clientSecret, setClientSecret] = useState<string | null>(null)  
+  const stripe = useStripe()
+  const elements = useElements()
+  const router = useRouter()
+  const { getToken } = useAuth()
 
-  const form = useForm<z.infer<typeof appointmentSchema>>({
+  const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
       patientName: "",
       patientEmail: "",
       appointmentDate: new Date(),
       appointmentTime: "",
-      paymentMethod: "CASH",
+      paymentMethod: PaymentMethod.CASH,
       notes: ""
     },
   })
 
-  async function onSubmit(values: z.infer<typeof appointmentSchema>) {
+  const paymentMethod = form.watch("paymentMethod")
+
+  useEffect(() => {
+    if (paymentMethod === PaymentMethod.CARD) {
+      createPaymentIntent()
+    }
+  }, [paymentMethod])
+
+  async function createPaymentIntent() {
     try {
-      startTransition(async() => {
-        const token = await getToken({ template: "TOKEN_Healthcare" });
+      const token = await getToken({ template: "TOKEN_Healthcare" })
+      const response = await axios.post('/api/create-payment-intent', {
+        amount: doctor.fees * 100, // amount in cents
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setClientSecret(response.data.clientSecret)
+    } catch (error) {
+      console.error("Error creating payment intent:", error)
+      toast.error("Failed to initialize payment. Please try again.")
+    }
+  }
+
+  async function onSubmit(values: AppointmentFormData) {
+    try {
+      startTransition(async () => {
+        const token = await getToken({ template: "TOKEN_Healthcare" })
+
+        let transactionId: string | null = null
+        if (values.paymentMethod === PaymentMethod.CARD) {
+          if (!stripe || !elements) {
+            throw new Error("Stripe has not been initialized")
+          }
+
+          const { error: submitError } = await elements.submit()
+          if (submitError) {
+            throw new Error(submitError.message)
+          }
+
+          const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
+            elements,
+            redirect: 'if_required',
+          })
+
+          if (confirmError) {
+            throw new Error(confirmError.message)
+          }
+
+          if (paymentIntent.status !== "succeeded") {
+            throw new Error("Payment failed")
+          }
+
+          transactionId = paymentIntent.id
+        }
 
         const response = await axios.post(
           `/api/appointments/${doctorId}`,
-          values,
+          { ...values, transactionId },
           {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }
-        );
-       
-  
-        const appointment = response.data; // Response data will contain the appointment details
-  
+        )
+
+        const appointment = response.data
+
         toast.success(
           `Your appointment with Dr. ${doctor.name} has been booked for ${format(
             new Date(appointment.appointmentDateTime),
             "PPpp"
           )}`
-        );
+        )
         form.reset()
-        redirect(`/appointments/confirmation/${appointment.id}`);
-
+        router.push(`/appointments/confirmation/${appointment.id}`)
       })
-
     } catch (error) {
-      console.error("Error creating appointment:", error);
-      // Handle Axios errors more gracefully
+      console.error("Error creating appointment:", error)
       if (axios.isAxiosError(error) && error.response) {
-        const message =
-          error.response.data?.error || "Failed to create appointment";
-        toast.error(message);
+        const message = error.response.data?.error || "Failed to create appointment"
+        toast.error(message)
       } else {
         toast.error(
           "There was an error booking your appointment. Please try again."
-        );
+        )
       }
     }
   }
@@ -198,14 +223,10 @@ export function AppointmentForm({ doctor , doctorId }: AppointmentFormProps) {
                           setSelectedDate(value);
                         }}
                         disabled={(date) =>
-                          date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                          date >
-                            new Date(
-                              new Date().setMonth(new Date().getMonth() + 1)
-                            )
+                          date < new Date() || date > new Date(new Date().setMonth(new Date().getMonth() + 1))
                         }
                         initialFocus
-                        className="rounded-md border shadow "
+                        className="rounded-md border shadow w-[100%]"
                       />
                     </PopoverContent>
                   </Popover>
@@ -247,7 +268,7 @@ export function AppointmentForm({ doctor , doctorId }: AppointmentFormProps) {
                       <FormItem>
                         <FormControl>
                           <RadioGroupItem
-                            value="CARD"
+                            value={PaymentMethod.CARD}
                             id="card"
                             className="peer sr-only"
                           />
@@ -263,7 +284,7 @@ export function AppointmentForm({ doctor , doctorId }: AppointmentFormProps) {
                       <FormItem>
                         <FormControl>
                           <RadioGroupItem
-                            value="CASH"
+                            value={PaymentMethod.CASH}
                             id="cash"
                             className="peer sr-only"
                           />
@@ -282,6 +303,9 @@ export function AppointmentForm({ doctor , doctorId }: AppointmentFormProps) {
                 </FormItem>
               )}
             />
+            {paymentMethod === PaymentMethod.CARD && clientSecret && (
+              <PaymentElement />
+            )}
             <FormField
               control={form.control}
               name="notes"
@@ -317,6 +341,36 @@ export function AppointmentForm({ doctor , doctorId }: AppointmentFormProps) {
         </Form>
       </CardContent>
     </Card>
-  );
+  )
 }
+
+export function AppointmentForm(props: AppointmentFormProps) {
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Fetch the client secret when the component mounts
+    async function fetchClientSecret() {
+      try {
+        const response = await axios.post('/api/create-payment-intent', {
+          amount: props.doctor.fees * 100, // amount in cents
+        })
+        setClientSecret(response.data.clientSecret)
+      } catch (error) {
+        console.error("Error fetching client secret:", error)
+      }
+    }
+    fetchClientSecret()
+  }, [props.doctor.fees])
+
+  if (!clientSecret) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <AppointmentFormContent {...props} />
+    </Elements>
+  )
+}
+
 

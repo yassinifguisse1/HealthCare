@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from '@/lib/db'
 import { appointmentSchema } from '@/lib/shema'
+import { PaymentMethod, PaymentStatus } from '@prisma/client'
 
 
 interface Proptype {
@@ -34,6 +35,8 @@ export async function POST(request: NextRequest, { params }: Proptype) {
       paymentMethod,
       notes,
     } = validation.data;
+    const transactionId = body.transactionId
+
     // Fetch doctor data to get fees
     const doctor = await prisma.doctor.findUnique({
       where: {
@@ -43,17 +46,11 @@ export async function POST(request: NextRequest, { params }: Proptype) {
         id:true,
         fees: true },
     });
-    console.log('id' ,  params.doctorId)
 
     if (!doctor) {
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    // Combine date and time into a single DateTime
-    // const appointmentDateTime = new Date(
-    //   `${appointmentDate.toISOString().split("T")[0]}T${appointmentTime}`
-    // );
-    // Combine appointmentDate and appointmentTime into a single DateTime
     const appointmentDateTime = combineDateAndTime(new Date(appointmentDate), appointmentTime);
 
     console.log("appointmentDate:", appointmentDate);
@@ -68,8 +65,9 @@ export async function POST(request: NextRequest, { params }: Proptype) {
         appointmentDateTime,
         status: "PENDING",
         fees: doctor.fees,
-        paymentStatus: "PENDING",
+        paymentStatus: paymentMethod === PaymentMethod.CARD ? PaymentStatus.PAID : PaymentStatus.PENDING,
         paymentMethod,
+        transactionId: transactionId || null,
         notes,
       },
     });

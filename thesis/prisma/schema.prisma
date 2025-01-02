@@ -34,7 +34,7 @@ model Appointment {
   status              AppointmentStatus
   fees                Float
   paymentStatus       PaymentStatus
-  paymentMethod       String
+  paymentMethod       PaymentMethod     
   transactionId       String?
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
