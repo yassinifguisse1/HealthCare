@@ -31,6 +31,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { AppointmentFormData, appointmentSchema } from '@/lib/shema'
 import { CardPaymentDialog } from './CardPaymentDialog'
+import LoadingSkeletonAppointmentForm from './LoadingSkeletonAppointmentForm'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -361,7 +362,9 @@ export function AppointmentForm(props: AppointmentFormProps) {
   }, [props.doctor.fees])
 
   if (!clientSecret) {
-    return <div>Loading...</div>
+    return <div>
+      <LoadingSkeletonAppointmentForm/>
+    </div>
   }
 
   return (

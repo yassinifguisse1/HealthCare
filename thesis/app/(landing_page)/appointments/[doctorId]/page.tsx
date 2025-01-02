@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Doctor } from '@prisma/client'
 import { useDoctors } from '@/context/DoctorsContext'
 import { useParams } from 'next/navigation'
+import LoadingSkeletonAppointmentForm from '../../_components/LoadingSkeletonAppointmentForm'
+import DoctorCardSkeleton from '../../_components/DoctorCardSkeleton'
 
 export default  function AppointmentPage() {
   const { doctorId } = useParams()
@@ -42,7 +44,8 @@ export default  function AppointmentPage() {
   }, [getDoctorById, doctorId])
 
   if (isLoading) {
-    return <LoadingSkeleton />
+    return       <LoadingSkeleton/>
+    
   }
 
   if (error || !doctor) {
@@ -60,13 +63,13 @@ export default  function AppointmentPage() {
   )
 }
 
-function LoadingSkeleton() {
+export function LoadingSkeleton() {
   return (
     <div className="container mx-auto px-4 py-36">
       <Skeleton className="h-12 w-3/4 mx-auto mb-6" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Skeleton className="h-[600px]" />
-        <Skeleton className="h-[600px]" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 ">
+        <DoctorCardSkeleton  />
+        <LoadingSkeletonAppointmentForm />
       </div>
     </div>
   )
