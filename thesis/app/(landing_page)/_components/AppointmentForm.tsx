@@ -27,9 +27,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import axios from 'axios'
 import { toast } from 'sonner'
 import { useAuth } from '@clerk/nextjs'
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { AppointmentFormData, appointmentSchema } from '@/lib/shema'
+import { CardPaymentDialog } from './CardPaymentDialog'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -42,8 +43,8 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [isPending, startTransition] = useTransition()
   const [clientSecret, setClientSecret] = useState<string | null>(null)  
-  const stripe = useStripe()
-  const elements = useElements()
+  const [isCardPaymentDialogOpen, setIsCardPaymentDialogOpen] = useState(false)
+
   const router = useRouter()
   const { getToken } = useAuth()
 
@@ -67,6 +68,8 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
     }
   }, [paymentMethod])
 
+
+
   async function createPaymentIntent() {
     try {
       const token = await getToken({ template: "TOKEN_Healthcare" })
@@ -85,36 +88,19 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
   }
 
   async function onSubmit(values: AppointmentFormData) {
+    if (values.paymentMethod === PaymentMethod.CARD) {
+      setIsCardPaymentDialogOpen(true)
+      return
+    }
+
+    await createAppointment(values)
+  }
+
+
+  async function createAppointment(values: AppointmentFormData, transactionId?: string) {
     try {
       startTransition(async () => {
         const token = await getToken({ template: "TOKEN_Healthcare" })
-
-        let transactionId: string | null = null
-        if (values.paymentMethod === PaymentMethod.CARD) {
-          if (!stripe || !elements) {
-            throw new Error("Stripe has not been initialized")
-          }
-
-          const { error: submitError } = await elements.submit()
-          if (submitError) {
-            throw new Error(submitError.message)
-          }
-
-          const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
-            elements,
-            redirect: 'if_required',
-          })
-
-          if (confirmError) {
-            throw new Error(confirmError.message)
-          }
-
-          if (paymentIntent.status !== "succeeded") {
-            throw new Error("Payment failed")
-          }
-
-          transactionId = paymentIntent.id
-        }
 
         const response = await axios.post(
           `/api/appointments/${doctorId}`,
@@ -151,6 +137,10 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
     }
   }
 
+  function handlePaymentSuccess(transactionId: string) {
+    const values = form.getValues()
+    createAppointment(values, transactionId)
+  }
   return (
     <Card>
       <CardHeader>
@@ -223,7 +213,11 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
                           setSelectedDate(value);
                         }}
                         disabled={(date) =>
-                          date < new Date() || date > new Date(new Date().setMonth(new Date().getMonth() + 1))
+                          date < new Date() ||
+                          date >
+                            new Date(
+                              new Date().setMonth(new Date().getMonth() + 1)
+                            )
                         }
                         initialFocus
                         className="rounded-md border shadow w-[100%]"
@@ -303,9 +297,7 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
                 </FormItem>
               )}
             />
-            {paymentMethod === PaymentMethod.CARD && clientSecret && (
-              <PaymentElement />
-            )}
+
             <FormField
               control={form.control}
               name="notes"
@@ -340,8 +332,16 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
           </form>
         </Form>
       </CardContent>
+      {clientSecret && (
+        <CardPaymentDialog
+          isOpen={isCardPaymentDialogOpen}
+          onClose={() => setIsCardPaymentDialogOpen(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+          clientSecret={clientSecret}
+        />
+      )}
     </Card>
-  )
+  );
 }
 
 export function AppointmentForm(props: AppointmentFormProps) {
