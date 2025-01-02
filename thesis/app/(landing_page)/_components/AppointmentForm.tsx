@@ -68,8 +68,6 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
     }
   }, [paymentMethod])
 
-
-
   async function createPaymentIntent() {
     try {
       const token = await getToken({ template: "TOKEN_Healthcare" })
