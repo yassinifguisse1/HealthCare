@@ -128,6 +128,9 @@ export async function GET(request: NextRequest) {
 }
 
 function combineDateAndTime(date: Date, time: string): Date {
+   // Parse the date string
+   const [year, month, day] = date.toISOString().split('T')[0].split('-').map(Number);
+  
   // Validate time format (e.g., "10:00 AM")
   const timeMatch = time.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
   if (!timeMatch) {
@@ -148,9 +151,14 @@ function combineDateAndTime(date: Date, time: string): Date {
   // Format the time into HH:mm:ss
   const time24 = `${hours24.toString().padStart(2, "0")}:${minutes}:00`;
 
-  // Combine the date and time into a single ISO string
-  const combinedDateTimeString = `${date.toISOString().split("T")[0]}T${time24}`;
-  const combinedDateTime = new Date(combinedDateTimeString);
+  // // Combine the date and time into a single ISO string
+  // const combinedDateTimeString = `${date.toISOString().split("T")[0]}T${time24}`;
+  // const combinedDateTime = new Date(combinedDateTimeString);
+   // Create a new Date object using the UTC time
+   // Create a new Date object using the local time
+   
+   const combinedDateTime = new Date(year, month - 1, day, hours24, parseInt(minutes, 10));
+ 
 
   // Validate combined DateTime
   if (isNaN(combinedDateTime.getTime())) {

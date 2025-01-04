@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 
 const Footer = () => {
   return (
-    <footer className="py-8">
+    <footer className="py-8 z-50 bg-black">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo */}

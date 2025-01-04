@@ -101,16 +101,23 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
       startTransition(async () => {
         const token = await getToken({ template: "TOKEN_Healthcare" })
 
+       // Format the date as YYYY-MM-DD
+       const formattedDate = format(values.appointmentDate, 'yyyy-MM-dd')
+
+
         const response = await axios.post(
           `/api/appointments/${doctorId}`,
-          { ...values, transactionId },
+          { ...values, 
+            appointmentDate: formattedDate, 
+            transactionId 
+          },
           {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }
-        )
+        );
 
         const appointment = response.data
 

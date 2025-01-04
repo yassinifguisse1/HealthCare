@@ -26,48 +26,31 @@ const DoctorList: React.FC<DoctorListProps> = ({ doctors: propDoctors }) => {
   }
 
   return (
-    // <section className="py-8 px-4 md:px-8">
-    //   <div className="container mx-auto">
-    //     <h2 className="text-center text-3xl font-bold py-2 px-2 sm:p-4">
-    //       Top Doctors to Book
-    //     </h2>
-    //     <p className="text-muted-foreground text-center py-2 px-2 sm:p-4">
-    //       Simply browse through our extensive list of trusted doctors.
-    //     </p>
-    //     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-    //       {doctors.map((doctor) => (
-    //         <DoctorCard key={doctor.id} doctor={doctor} />
-    //       ))}
-    //     </div>
-    //     <Button className="flex items-center justify-center my-5 mx-auto">
-    //       See More
-    //     </Button>
-    //   </div>
-    // </section>
     <section className="py-8 px-4 md:px-8">
-    <div className="container mx-auto">
-      {!propDoctors && (
-        <>
-          <h2 className="text-center text-3xl font-bold py-2 px-2 sm:p-4">
-            Top Doctors to Book
-          </h2>
-          <p className="text-muted-foreground text-center py-2 px-2 sm:p-4">
-            Simply browse through our extensive list of trusted doctors.
-          </p>
-        </>
-      )}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {displayDoctors.map((doctor) => (
-          <DoctorCard key={doctor.id} doctor={doctor} />
-        ))}
+      <div className="container mx-auto">
+        {!propDoctors && (
+          <>
+            <h2 className="text-center text-3xl font-bold py-2 px-2 sm:p-4">
+              Top Doctors to Book
+            </h2>
+            <p className="text-muted-foreground text-center py-2 px-2 sm:p-4">
+              Simply browse through our extensive list of trusted doctors.
+            </p>
+          </>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 rounded-lg p-4 w-full">
+          {displayDoctors.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
+          ))}
+        </div>
+
+        {!propDoctors && (
+          <Button className="flex items-center justify-center my-5 mx-auto">
+            See More
+          </Button>
+        )}
       </div>
-      {!propDoctors && (
-        <Button className="flex items-center justify-center my-5 mx-auto">
-          See More
-        </Button>
-      )}
-    </div>
-  </section>
+    </section>
   );
 }
 
@@ -75,7 +58,8 @@ export default DoctorList
   
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
-    <Card className="overflow-hidden group cursor-pointer relative ">
+
+    <Card className="overflow-hidden group cursor-pointer relative h-full flex flex-col w-full">
       <Link href={`/appointments/${doctor.id}`}>
         <div className="relative aspect-square">
           <Image
@@ -86,13 +70,7 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
             fill
             priority
           />
-          {/* <Image
-            src={doctor.image || "/empty.svg"}
-            alt={doctor.name || "Doctor Image"}
-            height="1000"
-            width="1000"
-            className="h-60 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-          /> */}
+
           <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
             <div className="text-center flex flex-col items-center justify-center">
               <Badge className="text-xs mb-2 font-semibold truncate">
@@ -122,5 +100,6 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
        
       </CardFooter>
     </Card>
+
   );
 }

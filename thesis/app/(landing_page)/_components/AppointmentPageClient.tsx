@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { Doctor, Speciality } from '@prisma/client'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import DoctorList from './DoctorList'
 import { useDoctors } from '@/context/DoctorsContext'
+import { AppointmentSidebar } from './AppointmentSidebar'
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 
 
 const specialties: Speciality[] = [
@@ -49,46 +50,33 @@ export default function AppointmentPageClient() {
   }
 
   return (
-  <div className="flex flex-col md:flex-row min-h-screen py-[68px]">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-gray-100 p-4">
-        <h2 className="text-xl font-bold mb-4">Specialties</h2>
-        <div className="space-y-2">
-          {specialties.map((specialty) => (
-            <Button
-              key={specialty}
-              variant={selectedSpecialty === specialty ? "default" : "outline"}
-              className="w-full justify-start"
-              onClick={() => handleSpecialtyClick(specialty)}
-            >
-              {specialty.replace('_', ' ')}
-            </Button>
-          ))}
-          {selectedSpecialty && (
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-blue-600"
-              onClick={handleClearFilter}
-            >
-              Clear Filter
-            </Button>
-          )}
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-4">
-        <h1 className="text-2xl font-bold mb-4">Available Doctors</h1>
-        <DoctorList doctors={filteredDoctors} />
-      </main>
+  <SidebarProvider defaultOpen>
+    <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px] bg-black w-full">
+      <AppointmentSidebar
+        specialties={specialties}
+        selectedSpecialty={selectedSpecialty}
+        onSpecialtyClick={handleSpecialtyClick}
+        onClearFilter={handleClearFilter}
+      />
+        <SidebarTrigger />
+      <SidebarInset className=" w-full">
+        <header className="flex items-center justify-between p-4  top-[70px] ">
+          <h1 className="text-2xl font-bold">Available Doctors</h1>
+        
+        </header>
+        <main className=" w-full">
+          <DoctorList doctors={filteredDoctors} />
+        </main>
+      </SidebarInset>
     </div>
+  </SidebarProvider>
   )
 }
 
 function LoadingSkeleton() {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      <aside className="w-full md:w-64 bg-gray-100 p-4">
+    <div className="flex min-h-[calc(100vh-theme(spacing.32)-theme(spacing.16))]">
+      <aside className="w-64 bg-gray-100 p-4">
         <Skeleton className="h-8 w-3/4 mb-4" />
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -110,12 +98,12 @@ function LoadingSkeleton() {
 
 function ErrorMessage({ message }: { message: string }) {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Error: </strong>
-        <span className="block sm:inline">{message}</span>
-      </div>
+    <div className="flex items-center justify-center min-h-[calc(100vh-theme(spacing.32)-theme(spacing.16))]">
+    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <strong className="font-bold">Error: </strong>
+      <span className="block sm:inline">{message}</span>
     </div>
+  </div>
   )
 }
 
