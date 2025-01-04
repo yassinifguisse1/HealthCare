@@ -38,7 +38,7 @@ const DoctorList: React.FC<DoctorListProps> = ({ doctors: propDoctors }) => {
             </p>
           </>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 rounded-lg p-4 w-full">
+        <div className="container mx-auto flex flex-wrap  justify-center items-center gap-4 p-5">
           {displayDoctors.map((doctor) => (
             <DoctorCard key={doctor.id} doctor={doctor} />
           ))}
@@ -59,7 +59,7 @@ export default DoctorList
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
 
-    <Card className="overflow-hidden group cursor-pointer relative h-full flex flex-col w-full">
+    <Card className="overflow-hidden group cursor-pointer relative h-full flex flex-col w-full sm:max-w-[300px]">
       <Link href={`/appointments/${doctor.id}`}>
         <div className="relative aspect-square">
           <Image

@@ -59,12 +59,12 @@ export default function AppointmentPageClient() {
         onClearFilter={handleClearFilter}
       />
         <SidebarTrigger />
-      <SidebarInset className=" w-full">
-        <header className="flex items-center justify-between p-4  top-[70px] ">
+      <SidebarInset className=" w-fulla ">
+        <header className=" p-4  top-[70px] ">
           <h1 className="text-2xl font-bold">Available Doctors</h1>
         
         </header>
-        <main className=" w-full">
+        <main className=" w-full p-4">
           <DoctorList doctors={filteredDoctors} />
         </main>
       </SidebarInset>
@@ -75,7 +75,7 @@ export default function AppointmentPageClient() {
 
 function LoadingSkeleton() {
   return (
-    <div className="flex min-h-[calc(100vh-theme(spacing.32)-theme(spacing.16))]">
+    <div className="flex min-h-[calc(100vh-theme(spacing.32)-theme(spacing.16))] pt-[70px]">
       <aside className="w-64 bg-gray-100 p-4">
         <Skeleton className="h-8 w-3/4 mb-4" />
         <div className="space-y-2">
