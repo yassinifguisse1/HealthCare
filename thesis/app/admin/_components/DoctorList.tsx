@@ -35,41 +35,7 @@ export function DoctorList({  onEdit }: DoctorListProps) {
     setDoctorToDelete(doctor);
     setIsDialogOpen(true);
   };
-  // const deleteDoctor = async (doctorId: string) => {
-  //   setIsLoading(true); // Set loading state to true
-
-  //   try {
-  //     const token = await getToken({ template: "TOKEN_Healthcare" });
-  //     const response = await axios.delete(`/api/doctor/${doctorId}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     console.log("Response data:", response.data);
-  //     console.log("Status:", response.status);
-
-  //     if (response.status === 200) {
-  //       toast.success("Doctor deleted successfully!");
-
-  //       onDelete(doctorId);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting doctor:", error);
-  //     if (axios.isAxiosError(error)) {
-  //       if (error.response?.status === 401) {
-  //         toast.error("Unauthorized. Please log in and try again.");
-  //       } else if (error.response?.status === 404) {
-  //         toast.error("Doctor not found. It may have been already deleted.");
-  //       } else {
-  //         toast.error("Failed to delete doctor. Please try again later.");
-  //       }
-  //     } else {
-  //       toast.error("An unexpected error occurred. Please try again.");
-  //     }
-  //   } finally {
-  //     setIsLoading(false); // Reset loading state
-  //   }
-  // };
+console.log(doctors)
 
   const confirmDelete = async () => {
     if (doctorToDelete) {
@@ -223,8 +189,18 @@ function DoctorCard({
           <h3 className="font-semibold text-sm mb-1 truncate">{doctor.name}</h3>
           <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
           <p className="text-xs text-muted-foreground">
-            {doctor.experience} exp.
+            {doctor.experience} experience
           </p>
+          {/* about */}
+          <p className="text-xs text-muted-foreground">
+            {doctor.about}
+          </p>
+          {/* degree */}
+          <Badge className="text-xs text-muted-foreground">
+            {doctor.degree}
+          </Badge>
+
+
         </CardContent>
       </Link>
       <CardFooter className="flex justify-between relative pb-9">

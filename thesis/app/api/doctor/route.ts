@@ -25,6 +25,8 @@ export async function GET() {
         experience: true,
         fees: true,
         image: true,
+        about: true,
+        degree: true,
         createdAt: true,
         updatedAt: true,
         addressLine1: true,

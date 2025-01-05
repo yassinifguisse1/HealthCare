@@ -4,14 +4,16 @@ import { Progress } from "@/components/ui/progress"
 type ProgressDialogProps = {
   isOpen: boolean;
   progress: number;
+  editingDoctor: boolean;
 }
 
-export function ProgressDialog({ isOpen, progress }: ProgressDialogProps) {
+export function ProgressDialog({ isOpen, progress,editingDoctor }: ProgressDialogProps) {
   return (
     <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Adding Doctor</DialogTitle>
+          <DialogTitle>
+            {editingDoctor ? "Updating Doctor" : "Adding Doctor"}</DialogTitle>
         </DialogHeader>
         <div className="w-full py-4">
           <Progress value={progress} className="w-full" />

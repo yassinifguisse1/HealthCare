@@ -1,6 +1,6 @@
 "use client";
 
-import {  useState, useTransition } from "react";
+import {  useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -39,6 +39,7 @@ type DoctorFormProps = {
   initialData?: Doctor;
   setIsDialogOpen: (isOpen: boolean) => void;
   onDoctorUpdated?: (doctor: Doctor) => void;
+  editingDoctor: boolean;
 };
 
 const SpecialityOptions:Speciality[] = [
@@ -50,14 +51,14 @@ const SpecialityOptions:Speciality[] = [
   "GASTROENTEROLOGIST",
 ];
 
-export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: DoctorFormProps) {
-  // const [imagePreview, setImagePreview] = useState(initialData?.image || "");
+export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , editingDoctor}: DoctorFormProps) {
   const [file, setFile] = React.useState<File>();
   const { edgestore } = useEdgeStore();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = useState(0);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const { addDoctor, updateDoctor } = useDoctors();
+
 
 
 
@@ -74,6 +75,8 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: Doc
       addressLine2: initialData?.addressLine2 || "",
     },
   });
+  
+  
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
 
@@ -101,21 +104,7 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: Doc
         }
         setProgress(99); // Set to 50% after image upload
 
-        // Determine if it's an edit or create action
-        // const method = initialData ? "PUT" : "POST";
-
-        // const endpoint = initialData
-        //   ? `/api/doctor/${initialData.id}` // Update existing doctor
-        //   : `/api/doctor`; // Add new doctor
-
-        // const response = await axios({
-        //   method,
-        //   url: endpoint,
-        //   data: {
-        //     ...values,
-        //     image: uploadedImageUrl || "/empty.svg",
-        //   },
-        // });
+       
         const doctorData = {
           ...values,
           image: uploadedImageUrl || "/empty.svg",
@@ -139,24 +128,6 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: Doc
          if (onDoctorUpdated) {
           onDoctorUpdated(updatedDoctor);
         }
-
-        // if (response.status === 200 || response.status === 201) {
-        //   setProgress(100); // Set to 100% after API call
-        //   // Wait for a short moment to ensure the 100% progress is visible
-        //   await new Promise((resolve) => setTimeout(resolve, 500));
-        //   setIsProgressDialogOpen(false);
-        //   setIsDialogOpen(false);
-        //   toast.success(
-        //     initialData
-        //       ? "Doctor updated successfully!"
-        //       : "Doctor added successfully!"
-        //   );
-        //   onSubmit(response.data);
-        //   redirect("/admin/doctors");
-        
-        // } else {
-        //   throw new Error(response.data.error || "Unexpected error occurred.");
-        // }
       });
     } catch (err) {
       console.error(err);
@@ -168,15 +139,18 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: Doc
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-      <ProgressDialog isOpen={isProgressDialogOpen} progress={progress} />
+      <ProgressDialog isOpen={isProgressDialogOpen} progress={progress} editingDoctor={editingDoctor? true : false}/>
 
         {/* Image Upload */}
         <div className="space-y-4">
           <SingleImageDropzone
             value={file}
-            onChange={(newFile) => setFile(newFile)}
+            onChange={(newFile) => 
+              setFile(newFile)}
             width={200}
             height={200}
+
+
           />
           <FormMessage />
         </div>
@@ -206,7 +180,7 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated}: Doc
                 <FormLabel>Speciality</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={field.value || ""}
                 >
                   <FormControl>
                     <SelectTrigger className="border w-full ">

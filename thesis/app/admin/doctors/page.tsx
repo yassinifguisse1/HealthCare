@@ -13,8 +13,7 @@ import { useDoctors } from "@/context/DoctorsContext"
 
 
 export default function DoctorManagementPage() {
-  // const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const { doctors, isLoading ,fetchDoctors} = useDoctors();
+  const {  isLoading ,fetchDoctors} = useDoctors();
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -25,103 +24,7 @@ export default function DoctorManagementPage() {
     fetchDoctors();
     setEditingDoctor(null);
   };
-  // const [isLoading , setIsLoading] = useState<boolean>(true);
-  // const { getToken} = useAuth()
 
-// // add doctor
-//   const handleAddDoctor = (newDoctor: Doctor) => {
-//     setDoctors([...doctors, newDoctor]);
-//     console.log("doctor from admin/doctors/page.tsx" , newDoctor)
-//     setIsDialogOpen(false);
-//   };
-
-//   const handleUpdateDoctor = (updatedDoctor: Doctor) => {
-//     setDoctors(doctors.map(doc => doc.id === updatedDoctor.id ? updatedDoctor : doc));
-//     setEditingDoctor(null);
-//     setIsDialogOpen(false);
-//   };
-
-//   const handleDeleteDoctor = (id: string) => {
-//     setDoctors(doctors.filter(doc => doc.id !== id));
-//   };
-// const handleAddDoctor = (newDoctor: Doctor) => {
-//   addDoctor(newDoctor);
-//   setIsDialogOpen(false);
-// };
-
-// const handleUpdateDoctor = (updatedDoctor: Doctor) => {
-//   updateDoctor(updatedDoctor);
-//   setEditingDoctor(null);
-//   setIsDialogOpen(false);
-// };
-
-  // fetch doctors from database 
-
-  
-//     const fetchDoctors = async () => {
-//       setIsLoading(true);
-//       try {
-//         const token = await getToken({ template: "TOKEN_Healthcare" });
-//         const response = await axios.get("http://localhost:3000/api/doctor", {
-//           headers: {
-//             "Content-Type": "application/json",
-//             // token from clerk
-//             Authorization: `Bearer ${token}`,
-//             "Cache-Control": "no-store"  // Suggestion to discourage caching
-//           }
-//         });
-//         const data = response.data;
-//         setDoctors(data)
-       
-//         console.log('data inside fetchDoctors axios.get' , data)
-
-//     }catch(error) {
-//       console.log("error fetching doctors" , error)
-//     }
-    
-//     setIsLoading(false);
-//   }
-
-
-//   useEffect(() => {
-//     fetchDoctors();
-//   }, []); 
-
-//   // Update doctors from database 
-
-  
-//   const updateDoctors = async ( 
-//     id: string, updatedData: Partial<Doctor>
-//   ) => {
-//     setIsLoading(true);
-//     try {
-//       const token = await getToken({ template: "TOKEN_Healthcare" });
-//       const response = await axios.put(
-//         `http://localhost:3000/api/doctor/${id}`,
-//         updatedData,
-//         {
-//           headers: {
-//             "Content-Type": "application/json",
-//             // token from clerk
-//             Authorization: `Bearer ${token}`,
-//           },
-//         }
-//       );
-//       const updatedDoctor = response.data;
-//       // Update the state to reflect the changes
-//       // setDoctors((prevDoctors) =>
-//       //   prevDoctors.map((doc) =>
-//       //     doc.id === updatedDoctor.id ? updatedDoctor : doc
-//       //   )
-//       // );
-//       handleUpdateDoctor(updatedDoctor);
-//       console.log("data inside UpdateDoctors axios.get", updatedDoctor);
-//     } catch (error) {
-//       console.log("error fetching doctors", error);
-//     } finally {
-//       setIsLoading(false); // Reset loading state
-//     }
-// }
 
 
 
@@ -163,6 +66,7 @@ export default function DoctorManagementPage() {
             initialData={editingDoctor || undefined}
             setIsDialogOpen={setIsDialogOpen}
             onDoctorUpdated={handleDoctorUpdated}
+            editingDoctor={editingDoctor? true : false}
 
           />
         </DialogContent>
@@ -171,14 +75,7 @@ export default function DoctorManagementPage() {
       {isLoading ? (
         <DoctorListSkeleton />
       ) : (
-        // <DoctorList
-        //   doctors={doctors}
-        //   onEdit={(doctor) => {
-        //     setEditingDoctor(doctor);
-        //     setIsDialogOpen(true);
-        //   }}
-        //   onDelete={handleDeleteDoctor}
-        // />
+
         <DoctorList
           onEdit={(doctor) => {
             setEditingDoctor(doctor);

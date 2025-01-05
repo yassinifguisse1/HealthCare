@@ -17,10 +17,14 @@ const specialties: Speciality[] = [
   "NEUROLOGIST",
   "GASTROENTEROLOGIST"
 ]
+const DOCTORS_PER_PAGE = 8;
+
 
 export default function AppointmentPageClient() {
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([])
   const [selectedSpecialty, setSelectedSpecialty] = useState<Speciality | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+
   const { doctors, isLoading , error  } = useDoctors();
 
   useEffect(() => {
@@ -33,13 +37,26 @@ export default function AppointmentPageClient() {
     setSelectedSpecialty(specialty)
     const filtered = doctors.filter(doctor => doctor.speciality === specialty)
     setFilteredDoctors(filtered)
+    setCurrentPage(1)
 
   }
 
   const handleClearFilter = () => {
     setSelectedSpecialty(null)
     setFilteredDoctors(doctors)
+    setCurrentPage(1)
   }
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const paginatedDoctors = filteredDoctors.slice(
+    (currentPage - 1) * DOCTORS_PER_PAGE,
+    currentPage * DOCTORS_PER_PAGE
+  )
+
+  const totalPages = Math.ceil(filteredDoctors.length / DOCTORS_PER_PAGE)
+
 
   if (isLoading) {
     return <LoadingSkeleton />
@@ -65,7 +82,14 @@ export default function AppointmentPageClient() {
         
         </header>
         <main className=" w-full p-4">
-          <DoctorList doctors={filteredDoctors} />
+          {/* <DoctorList doctors={filteredDoctors} /> */}
+          <DoctorList 
+              doctors={paginatedDoctors} 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isLoading}
+            />
         </main>
       </SidebarInset>
     </div>

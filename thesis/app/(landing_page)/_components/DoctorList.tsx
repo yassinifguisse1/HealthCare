@@ -9,14 +9,28 @@ import Link from 'next/link'
 import { Doctor } from "@prisma/client";
 import { DoctorListSkeleton } from './DoctorListSkeleton'
 import { useDoctors } from '@/context/DoctorsContext'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 
 interface DoctorListProps {
   doctors?: Doctor[];
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
 }
 
 
-const DoctorList: React.FC<DoctorListProps> = ({ doctors: propDoctors }) => {
+const DoctorList: React.FC<DoctorListProps> = (
+  { doctors: propDoctors, currentPage, totalPages, onPageChange }
+) => {
   const { doctors: contextDoctors, isLoading } = useDoctors();
   const displayDoctors = propDoctors || contextDoctors;
 
@@ -38,11 +52,54 @@ const DoctorList: React.FC<DoctorListProps> = ({ doctors: propDoctors }) => {
             </p>
           </>
         )}
-        <div className="container mx-auto flex flex-wrap  justify-center items-center gap-4 p-5">
+        <div className="container mx-auto flex flex-wrap  justify-center  gap-4 p-5">
           {displayDoctors.map((doctor) => (
             <DoctorCard key={doctor.id} doctor={doctor} />
           ))}
+          {
+            propDoctors && (
+              <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) onPageChange(currentPage - 1);
+                }}
+                
+              />
+            </PaginationItem>
+            {[...Array(totalPages)].map((_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink 
+                  href="#" 
+                  isActive={currentPage === index + 1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onPageChange(index + 1);
+                  }}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) onPageChange(currentPage + 1);
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+            )
+          }
+           
         </div>
+       
 
         {!propDoctors && (
           <Button className="flex items-center justify-center my-5 mx-auto">
