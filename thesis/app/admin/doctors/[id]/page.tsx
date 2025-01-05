@@ -1,11 +1,84 @@
-import React from 'react'
 
-const SingleDoctor = ({ params }: { params: { id: string } }) => {
+
+'use client'
+
+import { useEffect, useState } from 'react'
+import { DoctorInfo } from '@/app/(landing_page)/_components/DoctorInfo'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Doctor } from '@prisma/client'
+import { useDoctors } from '@/context/DoctorsContext'
+import { useParams } from 'next/navigation'
+import DoctorCardSkeleton from '@/app/(landing_page)/_components/DoctorCardSkeleton'
+
+export default  function SingleDoctor() {
+  const { id } = useParams()
+  const [doctor, setDoctor] = useState<Doctor | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const {getDoctorById} = useDoctors()
+
+  useEffect(() => {
+    async function fetchDoctor() {
+      if (!id) {
+        setError('Doctor ID is missing')
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const fetchedDoctor = await getDoctorById(id as string)
+        if (fetchedDoctor) {
+          setDoctor(fetchedDoctor)
+        } else {
+          setError('Doctor not found')
+        }
+      } catch (err) {
+        console.error("Error fetching doctor:", err)
+        setError('Failed to fetch doctor information')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchDoctor()
+  }, [getDoctorById, id])
+
+  if (isLoading) {
+    return       <LoadingSkeleton/>
+    
+  }
+
+  if (error || !doctor) {
+    return <ErrorMessage message={error || 'Doctor not found'} />
+  }
+
   return (
-    <div>
-        <h1>      My Post: {params.id}</h1>
+    <div className="container mx-auto px-4 py-36">
+      <h1 className="text-3xl font-bold mb-6 text-center"> Dr. {doctor.name}</h1>
+      <div className="flex justify-center items-center mx-auto container max-w-3xl ">
+        <DoctorInfo doctor={doctor} />
+      </div>
     </div>
   )
 }
 
-export default SingleDoctor
+export function LoadingSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-36">
+      <Skeleton className="h-12 w-3/4 mx-auto mb-6" />
+      <div className="flex justify-center items-center mx-auto container max-w-3xl ">
+        <DoctorCardSkeleton  />
+      </div>
+    </div>
+  )
+}
+
+function ErrorMessage({ message }: { message: string }) {
+  return (
+    <div className="container mx-auto px-4 py-36 text-center">
+      <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+      <p>{message}</p>
+    </div>
+  )
+}
+

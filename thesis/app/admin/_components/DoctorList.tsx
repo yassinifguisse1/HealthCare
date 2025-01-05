@@ -41,7 +41,6 @@ export function DoctorList({doctors,  onEdit, currentPage, totalPages, onPageCha
     setDoctorToDelete(doctor);
     setIsDialogOpen(true);
   };
-console.log(doctors)
 
   const confirmDelete = async () => {
     if (doctorToDelete) {
@@ -162,7 +161,7 @@ function DoctorCard({
             {doctor.experience} experience
           </p>
           {/* about */}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mb-1">
             {doctor.about}
           </p>
           {/* degree */}

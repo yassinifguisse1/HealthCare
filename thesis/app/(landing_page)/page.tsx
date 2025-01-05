@@ -13,7 +13,7 @@ export default function Home() {
       <Hero />
       <LogoTocker />
       <SpecialityMenu />
-      <DoctorList />
+      <DoctorList/>
       <CreateAccountBar />
     </DoctorsProvider>
   );

@@ -21,19 +21,21 @@ import {
 
 interface DoctorListProps {
   doctors?: Doctor[];
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  isLoading: boolean;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  isLoading?: boolean;
 }
 
 
-const DoctorList: React.FC<DoctorListProps> = (
-  { doctors: propDoctors, currentPage, totalPages, onPageChange }
-) => {
+const DoctorList: React.FC<DoctorListProps> = ({
+  doctors: propDoctors,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+}) => {
   const { doctors: contextDoctors, isLoading } = useDoctors();
   const displayDoctors = propDoctors || contextDoctors;
-
 
   if (isLoading) {
     return <DoctorListSkeleton />;
@@ -56,50 +58,50 @@ const DoctorList: React.FC<DoctorListProps> = (
           {displayDoctors.map((doctor) => (
             <DoctorCard key={doctor.id} doctor={doctor} />
           ))}
-          {
-            propDoctors && (
-              <Pagination className="mt-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                href="#" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (currentPage > 1) onPageChange(currentPage - 1);
-                }}
-                
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink 
-                  href="#" 
-                  isActive={currentPage === index + 1}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onPageChange(index + 1);
-                  }}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                href="#" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (currentPage < totalPages) onPageChange(currentPage + 1);
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-            )
-          }
-           
+          {propDoctors && (
+            <Pagination className="mt-8">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) onPageChange(currentPage - 1);
+                    }}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50 cursor-pointer" : ""}
+                    
+                  />
+                </PaginationItem>
+                {[...Array(totalPages)].map((_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      href="#"
+                      isActive={currentPage === index + 1}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onPageChange(index + 1);
+                      }}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if ((currentPage ?? 1) < totalPages)
+                        onPageChange((currentPage ?? 1) + 1);
+                    }}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50 cursor-pointer" : ""}
+
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </div>
-       
 
         {!propDoctors && (
           <Button className="flex items-center justify-center my-5 mx-auto">
@@ -109,7 +111,7 @@ const DoctorList: React.FC<DoctorListProps> = (
       </div>
     </section>
   );
-}
+};
 
 export default DoctorList
   
