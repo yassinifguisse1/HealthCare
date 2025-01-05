@@ -1,6 +1,6 @@
 "use client";
 
-import {  useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -58,6 +58,9 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
   const [progress, setProgress] = useState(0);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const { addDoctor, updateDoctor } = useDoctors();
+  // previous image
+  const uploadedImageUrl = initialData?.image || "";
+  
 
 
 
@@ -65,6 +68,7 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      image: initialData?.image || '', // Set the default value of the image field
       name: initialData?.name || "",
       speciality: initialData?.speciality || undefined,
       degree: initialData?.degree || "",
@@ -73,10 +77,16 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
       fees: initialData?.fees || 0,
       addressLine1: initialData?.addressLine1 || "",
       addressLine2: initialData?.addressLine2 || "",
-    },
+    }
   });
   
-  
+  const {  setValue } = form;
+
+  useEffect(() => {
+    if (initialData) {
+      setValue('image', initialData.image);
+    }
+  }, [initialData, setValue]);
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
 
@@ -86,7 +96,7 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
 
       startTransition(async () => {
         let uploadedImageUrl = initialData?.image || "";
-        if (!file) {
+        if (!file && !initialData?.image) {
           alert("Please select an image.");
           setIsProgressDialogOpen(false);
 
@@ -96,7 +106,6 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
           const res = await edgestore.publicFiles.upload({
             file,
             onProgressChange: (progress) => {
-              console.log(progress);
               setProgress(progress);
             },
           });
@@ -139,20 +148,31 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-      <ProgressDialog isOpen={isProgressDialogOpen} progress={progress} editingDoctor={editingDoctor? true : false}/>
+        <ProgressDialog
+          isOpen={isProgressDialogOpen}
+          progress={progress}
+          editingDoctor={editingDoctor ? true : false}
+        />
 
         {/* Image Upload */}
         <div className="space-y-4">
-          <SingleImageDropzone
-            value={file}
-            onChange={(newFile) => 
-              setFile(newFile)}
-            width={200}
-            height={200}
-
-
-          />
+          {initialData ? (
+            <SingleImageDropzone
+              value={uploadedImageUrl}
+              onChange={(newFile) => setFile(newFile)}
+              width={200}
+              height={200}
+            />
+          ) : (
+            <SingleImageDropzone
+              value={file}
+              onChange={(newFile) => setFile(newFile)}
+              width={200}
+              height={200}
+            />
+          )}
           <FormMessage />
+       
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           <FormField
@@ -317,7 +337,6 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
             ? "Update Doctor"
             : "Save Doctor"}
         </Button>
-       
       </form>
     </Form>
   );

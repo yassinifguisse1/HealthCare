@@ -7,29 +7,35 @@ import Link from "next/link";
 import { Doctor } from "@prisma/client";
 import { formatDistance } from "date-fns";
 import { Edit, Trash } from "lucide-react";
-// import axios from "axios";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
-// import { useAuth } from "@clerk/nextjs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDoctors } from "@/context/DoctorsContext";
 import { DoctorListSkeleton } from "@/app/(landing_page)/_components/DoctorListSkeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 
 type DoctorListProps = {
-  // doctors: Doctor[];
+  doctors: Doctor[];
   onEdit: (doctor: Doctor) => void;
-  // onDelete: (id: string) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 };
 
-export function DoctorList({  onEdit }: DoctorListProps) {
-  const { doctors, deleteDoctor, isLoading } = useDoctors();
+export function DoctorList({doctors,  onEdit, currentPage, totalPages, onPageChange }: DoctorListProps) {
+  const {  deleteDoctor, isLoading } = useDoctors();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // const { getToken } = useAuth();
 
   const handleDelete = (doctor: Doctor) => {
     setDoctorToDelete(doctor);
@@ -54,13 +60,6 @@ console.log(doctors)
     }
   };
 
-  // const confirmDelete = async () => {
-  //   if (doctorToDelete) {
-  //     await deleteDoctor(doctorToDelete.id); // Call your delete function here
-  //     setIsDialogOpen(false);
-  //     setDoctorToDelete(null);
-  //   }
-  // };
   if (isLoading) {
     return <DoctorListSkeleton />;
   }
@@ -68,63 +67,6 @@ console.log(doctors)
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {/* {doctors.map((doctor, ind) => (
-          <Card
-            key={doctor.id + ind}
-            className="overflow-hidden group cursor-pointer relative"
-          >
-            <Link href={`/admin/doctors/${doctor.id}`}>
-              <div className="relative aspect-square">
-                <Image
-                  src={doctor.image || "/empty.svg"}
-                  alt={doctor.name || "Doctor Image"}
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  fill
-                  priority
-                />
-                <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-                  <div className="text-center flex flex-col items-center justify-center">
-                    <Badge className="text-xs mb-2 font-semibold truncate">
-                      {doctor.name}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      Fees: ${doctor.fees}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <CardContent className="p-3">
-                <h3 className="font-semibold text-sm mb-1 truncate">
-                  {doctor.name}
-                </h3>
-                <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
-                <p className="text-xs text-muted-foreground">
-                  {doctor.experience} exp.
-                </p>
-              </CardContent>
-            </Link>
-            <CardFooter className="flex justify-between relative pb-9">
-              <Button variant="outline" onClick={() => onEdit(doctor)}>
-                <Edit className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => handleDelete(doctor)}
-              >
-                <Trash className="w-6 h-6" />
-              </Button>
-              <div className="absolute bottom-2 right-3 text-xs text-muted-foreground ">
-                {doctor.createdAt
-                  ? formatDistance(new Date(doctor.createdAt), new Date(), {
-                      addSuffix: true,
-                    })
-                  : "Date unavailable"}{" "}
-              </div>
-            </CardFooter>
-          </Card>
-        ))} */}
-        
           {doctors.map((doctor) => (
             <DoctorCard
               key={doctor.id}
@@ -134,6 +76,34 @@ console.log(doctors)
             />
           ))}
         
+      </div>
+      <div className="mt-8">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => onPageChange(currentPage - 1)}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  onClick={() => onPageChange(page)}
+                  isActive={page === currentPage}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => onPageChange(currentPage + 1)}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
       <ConfirmDeleteDialog
         isOpen={isDialogOpen}

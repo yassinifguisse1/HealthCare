@@ -8,6 +8,8 @@ export const formSchema = z.object({
   }).min(2, {
     message: "Name must be at least 2 characters.",
   }),
+  image: z.string().optional(), // Add the image field
+
   speciality: z.nativeEnum(Speciality),
   degree: z.string({
     required_error:"degree is required", 
