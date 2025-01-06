@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import prisma from '@/lib/db'
 import { appointmentSchema } from '@/lib/shema'
 import { PaymentMethod, PaymentStatus } from '@prisma/client'
+import axios from 'axios';
 
 
 interface Proptype {
@@ -43,8 +44,10 @@ export async function POST(request: NextRequest, { params }: Proptype) {
         id : params.doctorId,
       },
       select: { 
-        id:true,
-        fees: true },
+        id: true,
+        fees: true,
+        name: true,
+        speciality: true },
     });
 
     if (!doctor) {
@@ -70,8 +73,38 @@ export async function POST(request: NextRequest, { params }: Proptype) {
         transactionId: transactionId || null,
         notes,
       },
+      include: {
+        doctor: {
+          select: {
+            name: true,
+            speciality: true,
+          },
+        },
+      },
     });
 console.log("appoi === " , appointment)
+
+   // Send confirmation email
+  // Send confirmation email using the existing send/route.ts
+  const emailResponse = await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/send`, {
+    to: patientEmail,
+    appointmentDetails: {
+      patientName,
+      doctor: {
+        name: doctor.name,
+        speciality: doctor.speciality,
+      },
+      appointmentDateTime: appointment.appointmentDateTime,
+      paymentMethod: appointment.paymentMethod,
+    },
+  });
+
+  if (emailResponse.status !== 200) {
+    console.error('Failed to send confirmation email');
+    // Optionally, you could add a flag to the response indicating the email wasn't sent
+  }
+
+
     return NextResponse.json(appointment, { status: 201 });
   } catch (error) {
     console.error('Error creating appointment:', error)
@@ -151,11 +184,6 @@ function combineDateAndTime(date: Date, time: string): Date {
   // Format the time into HH:mm:ss
   const time24 = `${hours24.toString().padStart(2, "0")}:${minutes}:00`;
 
-  // // Combine the date and time into a single ISO string
-  // const combinedDateTimeString = `${date.toISOString().split("T")[0]}T${time24}`;
-  // const combinedDateTime = new Date(combinedDateTimeString);
-   // Create a new Date object using the UTC time
-   // Create a new Date object using the local time
    
    const combinedDateTime = new Date(year, month - 1, day, hours24, parseInt(minutes, 10));
  
