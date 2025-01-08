@@ -40,6 +40,10 @@ const DoctorList: React.FC<DoctorListProps> = ({
   if (isLoading) {
     return <DoctorListSkeleton />;
   }
+  
+  if (!displayDoctors || displayDoctors.length === 0) {
+    return <div className="text-center text-gray-500">No doctors available right now.</div>;
+  }
 
   return (
     <section className="py-8 px-4 md:px-8">
@@ -58,7 +62,7 @@ const DoctorList: React.FC<DoctorListProps> = ({
           {displayDoctors.map((doctor) => (
             <DoctorCard key={doctor.id} doctor={doctor} />
           ))}
-          {propDoctors && (
+          {propDoctors  && totalPages > 1 && (
             <Pagination className="mt-8">
               <PaginationContent>
                 <PaginationItem>
@@ -100,7 +104,9 @@ const DoctorList: React.FC<DoctorListProps> = ({
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-          )}
+          ) 
+          
+          }
         </div>
 
         {!propDoctors && (

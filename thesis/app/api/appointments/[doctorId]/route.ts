@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import { appointmentSchema } from '@/lib/shema'
 import { PaymentMethod, PaymentStatus } from '@prisma/client'
 import axios from 'axios';
+import { redirect } from "next/navigation";
 
 
 interface Proptype {
@@ -13,7 +14,9 @@ export async function POST(request: NextRequest, { params }: Proptype) {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      redirect("/sign-in")
+
     }
     console.log('id params' ,  params.doctorId)
 
@@ -116,7 +119,8 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      // return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      redirect("/sign-in")
     }
 
     const { searchParams } = new URL(request.url)
@@ -209,6 +213,8 @@ export async function PUT(
     const { userId } = getAuth(request)
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      // redirect("/sign-in")
+
     }
 
     const { status } = await request.json()
@@ -242,6 +248,8 @@ export async function DELETE(
     const { userId } = getAuth(request)
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      // redirect("/sign-in")
+
     }
 
     const appointmentId = params.doctorId

@@ -6,9 +6,10 @@ import { AppointmentForm } from '../../_components/AppointmentForm'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Doctor } from '@prisma/client'
 import { useDoctors } from '@/context/DoctorsContext'
-import { useParams } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 import LoadingSkeletonAppointmentForm from '../../_components/LoadingSkeletonAppointmentForm'
 import DoctorCardSkeleton from '../../_components/DoctorCardSkeleton'
+import { useAuth } from '@clerk/nextjs'
 
 export default  function AppointmentPage() {
   const { doctorId } = useParams()
@@ -16,40 +17,52 @@ export default  function AppointmentPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const {getDoctorById} = useDoctors()
+    const { userId, isLoaded, isSignedIn } = useAuth()
+  
+    useEffect(() => {
+      if (isLoaded && !isSignedIn) {
+        redirect('/sign-in')
+      }
+    }, [isLoaded, isSignedIn])
+  
+    useEffect(() => {
+      console.log('userId in component =======', userId)
+    }, [userId])
+    // check if there is appointements
+  
 
   useEffect(() => {
     async function fetchDoctor() {
       if (!doctorId) {
-        setError('Doctor ID is missing')
-        setIsLoading(false)
-        return
+        setError("Doctor ID is missing");
+        setIsLoading(false);
+        return;
       }
 
       try {
-        const fetchedDoctor = await getDoctorById(doctorId as string)
+        const fetchedDoctor = await getDoctorById(doctorId as string);
         if (fetchedDoctor) {
-          setDoctor(fetchedDoctor)
+          setDoctor(fetchedDoctor);
         } else {
-          setError('Doctor not found')
+          setError("Doctor not found");
         }
       } catch (err) {
-        console.error("Error fetching doctor:", err)
-        setError('Failed to fetch doctor information')
+        console.error("Error fetching doctor:", err);
+        setError("Failed to fetch doctor information");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchDoctor()
-  }, [getDoctorById, doctorId])
+    fetchDoctor();
+  }, [getDoctorById, doctorId]);
 
   if (isLoading) {
-    return       <LoadingSkeleton/>
-    
+    return <LoadingSkeleton />;
   }
 
   if (error || !doctor) {
-    return <ErrorMessage message={error || 'Doctor not found'} />
+    return <ErrorMessage message={error || "Doctor not found"} />;
   }
 
   return (

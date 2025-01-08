@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
   Table,
   TableBody,
@@ -26,7 +26,8 @@ import { PaymentMethod, Speciality } from "@prisma/client"
 import { format } from "date-fns"
 import axios from "axios"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
+import { useAuth } from "@clerk/nextjs"
 
 
 type Doctor = {
@@ -55,6 +56,19 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
+  const { userId, isLoaded, isSignedIn } = useAuth()
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      redirect('/sign-in')
+    }
+  }, [isLoaded, isSignedIn])
+
+  useEffect(() => {
+    console.log('userId in component =======', userId)
+  }, [userId])
+  // check if there is appointements
+
 
   const filteredAppointments = useMemo(() => {
     return appointments.filter((appointment) =>

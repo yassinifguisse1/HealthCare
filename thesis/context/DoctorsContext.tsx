@@ -46,7 +46,7 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       });
       setDoctors(response.data);
     } catch (error) {
-      console.error("Error fetching doctors:", error);
+      console.error("Error fetching doctorss in context:", error);
       setError("Failed to fetch doctors");
     } finally {
       setIsLoading(false);
@@ -104,7 +104,9 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
   const getDoctorById = async (id: string) => {
+   
     try {
+     
       const token = await getToken({ template: "TOKEN_Healthcare" });
       const response = await axios.get(`http://localhost:3000/api/doctor/${id}`, {
         headers: {

@@ -2,9 +2,13 @@ import { Metadata } from 'next'
 import { DoctorsProvider } from '@/context/DoctorsContext'
 import axios from 'axios'
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
 async function getDoctorById(id: string) {
-  const { getToken } = await auth()
+  const { getToken,userId } = await auth()
+  if(!userId) {
+    redirect('/sign-in')
+  }
 
   try {
     const token = await getToken({ template: "TOKEN_Healthcare" });

@@ -4,12 +4,21 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { AppointmentsTable } from "../_components/appointments-table"
 import { auth } from "@clerk/nextjs/server"
 import axios from "axios"
+import { redirect } from "next/navigation"
 
 async function getAppointments() {
   
-  const { getToken } = await auth()
+  const { getToken ,userId } = await auth()
+  if(!userId){
+    redirect('/sign-in')
+  }
+  console.log('userId in page =======', userId)
+
+ 
 
   try {
+   
+
     const token = await getToken({ template: "TOKEN_Healthcare" });
 
     // Make sure we have a base URL
@@ -33,7 +42,7 @@ async function getAppointments() {
     if (axios.isAxiosError(error)) {
       console.error("Error fetching doctors:", error.message)
     } else {
-      console.error("Error fetching doctor:", error)
+      console.error("Error fetching doctort:", error)
     }
     return null
   }

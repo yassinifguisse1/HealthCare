@@ -60,7 +60,7 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
             <p>Thank you for choosing our service!</p>
           </div>
           <div className="bg-gray-100 text-center py-4 text-sm text-gray-600">
-            <p>&copy; 2023 Your Healthcare Service. All rights reserved.</p>
+            <p>&copy; 2024 Your Healthcare Service. All rights reserved.</p>
           </div>
         </div>
       </div>
