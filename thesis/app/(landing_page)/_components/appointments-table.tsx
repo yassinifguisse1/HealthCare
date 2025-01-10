@@ -98,12 +98,27 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
 
   const handleDeleteAppointment = async (appointmentId: string) => {
     try {
-      await axios.delete(`/api/appointments/${appointmentId}`)
-      toast.success("Appointment deleted successfully")
-      router.refresh()
+      const response = await axios.delete(`/api/appointments/${appointmentId}`);
+      
+      if (response.status === 200) {
+        toast.success("Appointment deleted successfully");
+        router.refresh();
+      } else if (response.status === 400) {
+        toast.error("Appointment already cancelled");
+      } else {
+        toast.error("Failed to delete appointment");
+      }
     } catch (error) {
-      console.error("Error deleting appointment:", error)
-      toast.error("Failed to delete appointment")
+      console.error("Error deleting appointment:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.status === 400) {
+          toast.error("Appointment already cancelled");
+        } else {
+          toast.error("Failed to delete appointment");
+        }
+      } else {
+        toast.error("Failed to delete appointment");
+      }
     }
   }
 

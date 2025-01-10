@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle ,DialogDescription} from "@/components/ui/dialog"
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -57,15 +57,22 @@ export function CardPaymentDialog({ isOpen, onClose, onPaymentSuccess, clientSec
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Card Payment</DialogTitle>
+          <DialogDescription>
+            Enter your card. Click Pay Now when you&apos;re done.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           {clientSecret && <PaymentElement />}
-          <Button type="submit" className="w-full mt-4" disabled={isProcessing || !stripe || !elements}>
+          <Button
+            type="submit"
+            className="w-full mt-4"
+            disabled={isProcessing || !stripe || !elements}
+          >
             {isProcessing ? "Processing..." : "Pay Now"}
           </Button>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 

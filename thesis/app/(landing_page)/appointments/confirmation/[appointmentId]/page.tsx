@@ -15,6 +15,7 @@ type Appointment = {
   id: string
   appointmentDateTime: string
   paymentMethod: string
+  fees: number,
   doctor: {
     name: string
     speciality: string
@@ -155,11 +156,16 @@ export default function AppointmentConfirmation({ params }: { params: { appointm
                 <Wallet className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Payment Method</p>
-                  <p className="font-medium">{appointment.paymentMethod}</p>
+                  {/* add fees */}
+                  <p className="font-medium">{appointment.fees}</p>
+                  <p className="font-medium">{" "}{appointment.paymentMethod}</p>
                 </div>
               </div>
             </div>
           </div>
+          <p className="text-center text-muted-foreground">
+              Please check your email for confirmation details.
+            </p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link href="/appointments" className="flex-1">
               <Button variant="outline" className="w-full">

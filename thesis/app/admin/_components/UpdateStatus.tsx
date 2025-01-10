@@ -20,7 +20,8 @@ interface UpdateStatusProps {
   appointment: Appointment
   isOpen: boolean
   onClose: () => void
-  onUpdateStatus: (id: string, newStatus: string) => void
+  onUpdateStatus: (id: string, newStatus: Appointment["status"]) => void
+
 }
 
 export function UpdateStatus({ appointment, isOpen, onClose, onUpdateStatus }: UpdateStatusProps) {
@@ -47,7 +48,7 @@ export function UpdateStatus({ appointment, isOpen, onClose, onUpdateStatus }: U
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="font-medium">New Status:</span>
-            <Select onValueChange={setNewStatus} defaultValue={newStatus}>
+            <Select onValueChange={(value) => setNewStatus(value as Appointment["status"])} defaultValue={newStatus}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select new status" />
               </SelectTrigger>

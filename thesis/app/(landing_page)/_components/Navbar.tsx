@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { buttonVariants , Button } from '@/components/ui/button'
 import logoImage from "@/assets/images/logosaas.png"
-import { Menu } from 'lucide-react';
+import { Menu ,Plus} from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -23,7 +23,7 @@ import { useUser } from "@clerk/nextjs";
 
 const items = [
   {labe : "Home" , link : "/"},
-  {labe : "All Doctors" , link : "/Doctors"},
+  {labe : "Appointments" , link : "/MyAppointements"},
   {labe : "About" , link : "/about"},
   {labe : "Contact" , link : "/contact"}
 ]
@@ -96,11 +96,11 @@ export default Navbar
               </div>
             </SignedOut>
             <SignedIn>
-              <Link href="/about" className="flex items-center gap-x-3">
+              {/* <Link href="/about" className="flex items-center gap-x-3"> */}
                 {isAdmin ? (
                   <div className="flex items-center gap-x-3">
                     <Link href="/admin" className="flex items-center gap-x-3">
-                      <Button>Admin Dashboard</Button>
+                      <Button>Dashboard</Button>
                     </Link>
                   </div>
                 ) : (
@@ -109,16 +109,15 @@ export default Navbar
                       href="/appointments"
                       className="flex items-center gap-x-3"
                     >
-                      <Button>Appointements</Button>
+                      <Button className="flex items-center gap-x-3">
+                        <Plus className="w-6 h-6 mr-1" />
+                        <span className="">Appointement</span>
+                      </Button>
                     </Link>
                   </div>
                 )}
-
-                {/* <Button>
-                    <span>Choose a Doctor</span>
-                  </Button> */}
                 <UserButton userProfileMode="modal" />
-              </Link>
+              {/* </Link> */}
             </SignedIn>
           </div>
         </div>
@@ -158,7 +157,10 @@ interface MobileNavbarProps {
   onClose: () => void;
 }
 function MobileNavbar({ isOpen, onOpenChange, onClose }:MobileNavbarProps){
-
+  const { user } = useUser();
+  const userRole = user?.publicMetadata?.role;
+  const isAdmin = userRole === "admin";
+ 
   return (
     <div className="md:hidden border-separate border-b block z-50 fixed  w-full   bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/20">
       <nav className="container mx-auto flex items-center justify-between h-[70px]  min-h-[70px] transition-colors duration-300 px-5">
@@ -172,12 +174,30 @@ function MobileNavbar({ isOpen, onOpenChange, onClose }:MobileNavbarProps){
         </div>
 
         <div className="flex items-center gap-3">
-          <SignedIn>
-            <Link href="/story" className="flex items-center gap-x-3">
-              <Button>hI test</Button>
-              <UserButton userProfileMode="modal" />
-            </Link>
-          </SignedIn>
+        <SignedIn>
+              {/* <Link href="/about" className="flex items-center gap-x-3"> */}
+                {isAdmin ? (
+                  <div className="flex items-center gap-x-3">
+                    <Link href="/admin" className="flex items-center gap-x-3">
+                      <Button>Dashboard</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-x-3">
+                    <Link
+                      href="/appointments"
+                      className="flex items-center gap-x-3"
+                    >
+                      <Button className="flex items-center gap-x-3">
+                        <Plus className="w-6 h-6 mr-1" />
+                        <span className=" ">Appointement</span>
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+                <UserButton userProfileMode="modal" />
+              {/* </Link> */}
+            </SignedIn>
 
           <Sheet open={isOpen} onOpenChange={onOpenChange}>
             <SheetTrigger asChild>

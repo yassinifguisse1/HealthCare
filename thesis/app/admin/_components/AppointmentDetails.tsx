@@ -5,9 +5,9 @@ import {
     DialogHeader,
     DialogTitle,
   } from "@/components/ui/dialog"
-  import { Appointment } from "./Appointments"
   import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
   import { Badge } from "@/components/ui/badge"
+import { Appointment } from "./Appointements"
   
   interface AppointmentDetailsProps {
     appointment: Appointment

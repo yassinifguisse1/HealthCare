@@ -2,9 +2,10 @@ import { NextResponse, NextRequest } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from '@/lib/db'
 import { appointmentSchema } from '@/lib/shema'
-import { PaymentMethod, PaymentStatus } from '@prisma/client'
+import { NotificationType, PaymentMethod, PaymentStatus } from '@prisma/client'
 import axios from 'axios';
 import { redirect } from "next/navigation";
+import { createNotificationAndSendEmail } from "@/lib/notificationHelper";
 
 
 interface Proptype {
@@ -87,27 +88,23 @@ export async function POST(request: NextRequest, { params }: Proptype) {
     });
 console.log("appoi === " , appointment)
 
-   // Send confirmation email
-  // Send confirmation email using the existing send/route.ts
-  const emailResponse = await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/send`, {
-    to: patientEmail,
-    appointmentDetails: {
-      patientName,
-      doctor: {
-        name: doctor.name,
-        speciality: doctor.speciality,
-      },
-      appointmentDateTime: appointment.appointmentDateTime,
-      paymentMethod: appointment.paymentMethod,
-    },
-  });
-
-  if (emailResponse.status !== 200) {
-    console.error('Failed to send confirmation email');
-    // Optionally, you could add a flag to the response indicating the email wasn't sent
-  }
-
-
+    // Create notification and send email
+    await createNotificationAndSendEmail(
+      userId,
+      appointment.id,
+      NotificationType.REMINDER,
+      `Your appointment with Dr. ${doctor.name} has been scheduled for ${appointmentDateTime.toLocaleString()}.`,
+      patientEmail,
+      {
+        patientName,
+        doctor: {
+          name: doctor.name,
+          speciality: doctor.speciality,
+        },
+        appointmentDateTime: appointment.appointmentDateTime,
+        paymentMethod: appointment.paymentMethod,
+      }
+    );
     return NextResponse.json(appointment, { status: 201 });
   } catch (error) {
     console.error('Error creating appointment:', error)
@@ -228,7 +225,34 @@ export async function PUT(
       data: {
         status,
       },
+      include: {
+        doctor: {
+          select: {
+            name: true,
+            speciality: true,
+          },
+        },
+       
+      }
     })
+    if (status === 'CANCELLED') {
+      await createNotificationAndSendEmail(
+        userId,
+        updatedAppointment.id,
+        NotificationType.CANCELLATION,
+        `Your appointment with Dr. ${updatedAppointment.doctor.name} scheduled for ${updatedAppointment.appointmentDateTime.toLocaleString()} has been cancelled.`,
+        updatedAppointment.patientEmail,
+        {
+          patientName: updatedAppointment.patientName,
+          doctor: {
+            name: updatedAppointment.doctor.name,
+            speciality: updatedAppointment.doctor.speciality,
+          },
+          appointmentDateTime: updatedAppointment.appointmentDateTime,
+          paymentMethod: updatedAppointment.paymentMethod,
+        }
+      )
+    }
 
     return NextResponse.json(updatedAppointment)
   } catch (error) {
@@ -254,13 +278,29 @@ export async function DELETE(
 
     const appointmentId = params.doctorId
 
-    await prisma.appointment.delete({
+    const appointment = await prisma.appointment.findUnique({
       where: {
         id: appointmentId,
         userId: userId,
-      },
+      }
     })
-
+    if (!appointment) {
+      return NextResponse.json({ error: "Appointment not found" }, { status: 404 })
+    }
+    if (appointment.status === "CANCELLED") {
+      return NextResponse.json({ error: "Appointment already cancelled" }, { status: 400 })
+    }
+    
+    // Now delete the appointment
+   // Delete the appointment
+   await prisma.appointment.delete({
+    where: {
+      id: appointmentId,
+      userId: userId,
+    },
+  })
+  
+   
     return NextResponse.json({ message: "Appointment deleted successfully" })
   } catch (error) {
     console.error("Error deleting appointment:", error)
