@@ -10,7 +10,7 @@ const Header = () => {
           <div className='relative flex justify-start items-start z-10'>
            
             <h2 className='text-xl md:text-2xl font-bold text-white'>
-              Welcome to the Admin Dashboard 👋
+               Dashboard 👋
             </h2>
           </div>
         </div>

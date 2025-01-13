@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
             appointmentDateTime: {
               gte: start,
               lte: end
-            }
+            },
+            status: { not: "CANCELLED" }
           }
         })
       })
@@ -42,7 +43,8 @@ export async function GET(request: NextRequest) {
             appointmentDateTime: {
               gte: start,
               lte: end
-            }
+            },
+            status: { not: "CANCELLED" }
           },
           _sum: {
             fees: true

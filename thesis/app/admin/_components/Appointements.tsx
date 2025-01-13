@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { AppointmentDetails } from "./AppointmentDetails"
 import { UpdateStatus } from "./UpdateStatus"
 import { toast } from "sonner"
+import { redirect } from "next/navigation"
 
 export type Appointment = {
   appointmentDateTime: string
@@ -26,9 +27,13 @@ export type Appointment = {
   }
   fees: number
 }
+interface AppointmentsProps {
+  appointments: Appointment[]
+  updateAppointmentStatus: (id: string, newStatus: Appointment['status']) => Promise<void>
+  refreshData: () => Promise<void>
+}
 
-export default function Appointments() {
-  const [appointments, setAppointments] = useState<Appointment[]>([])
+export default function Appointments({ appointments, updateAppointmentStatus,refreshData }: AppointmentsProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(1)
@@ -38,27 +43,9 @@ export default function Appointments() {
   const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false)
   const { getToken } = useAuth()
 
-  const fetchAppointments = async (page: number, size: number) => {
-    try {
-      const token = await getToken()
-      const response = await axios.get(`/api/admin/appointments?page=${page}&pageSize=${size}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      
-      const formattedAppointments = response.data.appointments.map((appointment: Appointment) => ({
-        ...appointment,
-        appointmentDateTime: format(new Date(appointment.appointment), "PPp"),
-        status: appointment.status // Use the status from the database
-      }))
-      
-      setAppointments(formattedAppointments)
-      setPageCount(response.data.pageCount)
-    } catch (error) {
-      console.error("Error fetching appointments:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  useEffect(() => {
+    setIsLoading(false)
+  }, [appointments])
 
   const handleViewDetails = (appointment: Appointment) => {
     setSelectedAppointment(appointment)
@@ -71,49 +58,19 @@ export default function Appointments() {
   }
 
   const handleStatusUpdate = async (id: string, newStatus: Appointment['status']) => {
-    try {
-      const token = await getToken()
-      await axios.put('/api/admin/appointments', { id, status: newStatus }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      
-      setAppointments(appointments.map(app => 
-        app.id === id ? { ...app, status: newStatus } : app
-      ))
-      
-      toast.success("Appointment status updated successfully")
-    } catch (error) {
-      console.error("Error updating appointment status:", error)
-      toast.error("Failed to update appointment status")
-    }
-  }
-
-  const handleCancelAppointment = async (appointment: Appointment) => {
-    try {
-      const token = await getToken()
-      await axios.put('/api/admin/appointments', { id: appointment.id, status: 'CANCELLED' }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      
-      setAppointments(appointments.map(app => 
-        app.id === appointment.id ? { ...app, status: 'CANCELLED' } : app
-      ))
-      
-      toast.success("Appointment cancelled successfully")
-    } catch (error) {
-      console.error("Error cancelling appointment:", error)
-      toast.error("Failed to cancel appointment")
-    }
+    await updateAppointmentStatus(id, newStatus)
+    setIsUpdateStatusOpen(false)
+    await refreshData()
   }
 
   const handleViewConfirmation = (appointment: Appointment) => {
-    // Implement view confirmation logic here
     console.log("View confirmation for appointment:", appointment.id)
   }
 
-  useEffect(() => {
-    fetchAppointments(currentPage, pageSize)
-  }, [currentPage, pageSize, getToken])
+  const formattedAppointments = appointments.map(appointment => ({
+    ...appointment,
+    appointmentDateTime: format(new Date(appointment.appointment), "PPp"),
+  }))
 
   if (isLoading) {
     return (
@@ -137,10 +94,10 @@ export default function Appointments() {
     </CardHeader>
     <CardContent>
       <DataTable 
-        columns={columns(handleViewDetails, handleUpdateStatus, handleCancelAppointment, handleViewConfirmation)}
-        data={appointments} 
+        columns={columns(handleViewDetails, handleUpdateStatus, handleViewConfirmation)}
+        data={formattedAppointments} 
         filterColumn="patient"
-        pageCount={pageCount}
+        pageCount={Math.ceil(appointments.length / pageSize)}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         onPageSizeChange={(size) => {
@@ -165,6 +122,6 @@ export default function Appointments() {
       )}
     </CardContent>
   </Card>
-  )
+)
 }
 

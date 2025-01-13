@@ -1,7 +1,7 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import {
   Card,
@@ -33,28 +33,50 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function RevenueChart() {
-  const [data, setData] = useState<RevenueData[]>([])
+interface RevenueChartProps {
+  data: RevenueData[]
+  refreshData: () => Promise<void>
+}
+export function RevenueChart({ data,refreshData }: RevenueChartProps) {
+  // const [data, setData] = useState<RevenueData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { getToken } = useAuth()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await getToken()
-        const response = await axios.get("/api/admin/charts", {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        setData(response.data.revenue)
-      } catch (error) {
-        console.error("Error fetching revenue data:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  // const fetchData = useCallback(async () => {
+  //   try {
+  //     setIsLoading(true)
+  //     const token = await getToken()
+  //     const response = await axios.get("/api/admin/charts", {
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     })
+  //     setData(response.data.revenue)
+  //   } catch (error) {
+  //     console.error("Error fetching revenue data:", error)
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // }, [getToken])
 
-    fetchData()
-  }, [getToken])
+  // useEffect(() => {
+  //   fetchData()
+  // }, [fetchData])
+
+  // useEffect(() => {
+  //   const handleRefresh = async () => {
+  //     await refreshData()
+  //     await fetchData()
+  //   }
+  //   handleRefresh()
+  // }, [refreshData, fetchData])
+
+  useEffect(() => {
+    const handleRefresh = async () => {
+      setIsLoading(true)
+      await refreshData()
+      setIsLoading(false)
+    }
+    handleRefresh()
+  }, [refreshData])
 
   if (isLoading) {
     return (

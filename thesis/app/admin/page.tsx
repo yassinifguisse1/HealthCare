@@ -10,7 +10,7 @@ import { RevenueChart } from "./_components/RevenueChart"
 import { useAuth } from "@clerk/nextjs"
 import axios from "axios"
 import { toast } from "sonner"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { DashboardCardsSkeleton } from "./_components/dashboard-cards-skeleton"
 
 
@@ -20,31 +20,99 @@ type DashboardStats = {
   revenue: { amount: number; change: string }
   satisfaction: { rate: number; change: string }
 }
+
+type Appointment = {
+  appointmentDateTime: string
+  id: string
+  shortId: string
+  patient: string
+  status: "PENDING" | "SCHEDULED" | "CANCELLED" 
+  appointment: string
+  doctor: {
+    name: string
+    speciality: string
+    image: string | null
+  }
+  fees: number
+}
 export default  function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [chartData, setChartData] = useState<ChartData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { getToken } = useAuth()
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const token = await getToken({ template: "TOKEN_Healthcare" })
-        const response = await axios.get("/api/admin/dashboard", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        setStats(response.data)
-      } catch (error) {
-        console.error("Error fetching dashboard stats:", error)
-        toast.error("Failed to load dashboard statistics")
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchStats = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const token = await getToken({ template: "TOKEN_Healthcare" })
+      const response = await axios.get("/api/admin/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setStats(response.data)
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error)
+      toast.error("Failed to load dashboard statistics")
+    } finally {
+      setIsLoading(false)
     }
-
-    fetchStats()
   }, [getToken])
+
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const token = await getToken()
+      const response = await axios.get("/api/admin/appointments", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setAppointments(response.data.appointments)
+    } catch (error) {
+      console.error("Error fetching appointments:", error)
+      toast.error("Failed to load appointments")
+    }
+  }, [getToken])
+
+  const fetchChartData = useCallback(async () => {
+    try {
+      const token = await getToken()
+      const response = await axios.get("/api/admin/charts", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setChartData(response.data)
+    } catch (error) {
+      console.error("Error fetching chart data:", error)
+      toast.error("Failed to load chart data")
+    }
+  }, [getToken])
+
+
+  const refreshData = useCallback(async () => {
+    await Promise.all([fetchStats(), fetchAppointments(),fetchChartData()])
+  }, [fetchStats, fetchAppointments,fetchChartData])
+
+  useEffect(() => {
+    refreshData()
+  }, [refreshData])
+
+  const updateAppointmentStatus = useCallback(async (id: string, newStatus: Appointment['status']) => {
+    try {
+      const token = await getToken()
+      await axios.put(`/api/appointments/${id}`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      
+      setAppointments(prevAppointments => 
+        prevAppointments.map(app => app.id === id ? { ...app, status: newStatus } : app)
+      )
+      
+      toast.success("Appointment status updated successfully")
+      await refreshData()
+    } catch (error) {
+      console.error("Error updating appointment status:", error)
+      toast.error("Failed to update appointment status")
+    }
+  }, [getToken, refreshData])
   
 
   return (
@@ -106,12 +174,15 @@ export default  function AdminDashboard() {
       ) : (
         <div className="text-center text-muted-foreground">Failed to load dashboard statistics</div>
       )}
-      <Appointments/>
+      <Appointments appointments={appointments}
+        updateAppointmentStatus={updateAppointmentStatus}
+        refreshData={refreshData}
+        />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <AppointmentsChart />
-        <RevenueChart/>
-      </div>
+        <AppointmentsChart data={chartData?.appointments || []} refreshData={refreshData}/>
+        <RevenueChart data={chartData?.revenue || []} refreshData={refreshData}/>
+     </div>
 
     
     </div>

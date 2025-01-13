@@ -56,6 +56,13 @@ model Notification {
   appointmentId String?
   Appointment   Appointment?       @relation(fields: [appointmentId], references: [id])
 }
+model DashboardStats {
+  id               Int      @id @default(1)
+  totalAppointments Int     @default(0)
+  totalRevenue     Float    @default(0)
+  lastMonthRevenue Float    @default(0)
+  updatedAt        DateTime @updatedAt
+}
 
 enum Speciality {
   GENERAL_PHYSICIAN

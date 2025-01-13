@@ -56,7 +56,6 @@ export function UpdateStatus({ appointment, isOpen, onClose, onUpdateStatus }: U
                 <SelectItem value="PENDING">Pending</SelectItem>
                 <SelectItem value="SCHEDULED">Scheduled</SelectItem>
                 <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                <SelectItem value="COMPLETED">Completed</SelectItem>
               </SelectContent>
             </Select>
           </div>

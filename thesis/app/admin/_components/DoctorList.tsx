@@ -77,7 +77,9 @@ export function DoctorList({doctors,  onEdit, currentPage, totalPages, onPageCha
         
       </div>
       <div className="mt-8">
-        <Pagination>
+        {
+          totalPages > 1 && (
+            <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -103,6 +105,8 @@ export function DoctorList({doctors,  onEdit, currentPage, totalPages, onPageCha
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+          )
+        }
       </div>
       <ConfirmDeleteDialog
         isOpen={isDialogOpen}

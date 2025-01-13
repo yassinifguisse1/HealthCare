@@ -43,7 +43,7 @@ function FeesBadge({ fees }: { fees: number }) {
 export const columns = (
   handleViewDetails: (appointment: Appointment) => void,
   handleUpdateStatus: (appointment: Appointment) => void,
-  handleCancelAppointment: (appointment: Appointment) => void,
+  // handleCancelAppointment: (appointment: Appointment) => void,
   handleViewConfirmation: (appointment: Appointment) => void
 ): ColumnDef<Appointment>[] => [
   {
@@ -132,9 +132,9 @@ export const columns = (
             <DropdownMenuItem onClick={() => handleUpdateStatus(appointment)}>
               Update status
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleCancelAppointment(appointment)}>
+            {/* <DropdownMenuItem onClick={() => handleCancelAppointment(appointment)}>
               Cancel appointment
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem onClick={() => handleViewConfirmation(appointment)}>
               View confirmation
             </DropdownMenuItem>

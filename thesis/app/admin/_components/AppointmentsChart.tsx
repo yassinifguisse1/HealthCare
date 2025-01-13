@@ -11,7 +11,7 @@ import {
   import { useAuth } from "@clerk/nextjs"
   import axios from "axios"
   import { Skeleton } from "@/components/ui/skeleton"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
   
   type AppointmentData = {
     name: string
@@ -26,31 +26,55 @@ import { useEffect, useState } from "react"
   } satisfies ChartConfig
 
 
-
-export function AppointmentsChart() {
+  interface AppointmentsChartProps {
+    data: AppointmentData[]
+    refreshData: () => Promise<void>
+  }
+export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) {
   
-  const [data, setData] = useState<AppointmentData[]>([])
+  // const [data, setData] = useState<AppointmentData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { getToken } = useAuth()
 
+ 
+  // const fetchData = useCallback(async () => {
+  //   try {
+  //     setIsLoading(true)
+  //     const token = await getToken()
+  //     const response = await axios.get("/api/admin/charts", {
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     })
+  //     setData(response.data.appointments)
+  //   } catch (error) {
+  //     console.error("Error fetching appointment data:", error)
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // }, [getToken])
+
+  // useEffect(() => {
+  //   fetchData()
+  // }, [fetchData])
+
+  // useEffect(() => {
+  //   const handleRefresh = async () => {
+  //     await refreshData()
+  //     await fetchData()
+  //   }
+  //   handleRefresh()
+  // }, [refreshData, fetchData])
+
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await getToken()
-        const response = await axios.get("/api/admin/charts", {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        setData(response.data.appointments)
-      } catch (error) {
-        console.error("Error fetching appointment data:", error)
-      } finally {
-        setIsLoading(false)
-      }
+    const handleRefresh = async () => {
+      setIsLoading(true)
+      await refreshData()
+      setIsLoading(false)
     }
+    handleRefresh()
+  }, [refreshData])
 
-    fetchData()
-  }, [getToken])
-
+  
   if (isLoading) {
     return (
       <Card className="col-span-2 border-2">

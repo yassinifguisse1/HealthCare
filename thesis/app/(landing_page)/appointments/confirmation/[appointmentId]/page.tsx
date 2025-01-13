@@ -109,79 +109,84 @@ export default function AppointmentConfirmation({ params }: { params: { appointm
     //   </Card>
     // </div>
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-purple-600r to-purple-400r p-4 md:p-8">
-   <ConfettiEffect />
-    <div className="container mx-auto max-w-2xl ">
-      <Card className="overflow-hidden">
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-600/20 to-transparent" />
-          <div className="relative p-6 text-center">
-            <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-yellow-400 p-4">
-              <Medal className="h-10 w-10 text-white" />
-            </div>
-            <h1 className="mb-2 text-3xl font-bold">Congratulations!</h1>
-            <p className="text-muted-foreground">
-              Your appointment has been successfully booked
-            </p>
-          </div>
-        </div>
-        <CardContent className="space-y-6 p-6">
-          <div className="rounded-lg bg-muted p-4">
-            <div className="grid gap-4">
-              <div className="flex items-center gap-3">
-                <Stethoscope className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Doctor</p>
-                  <p className="font-medium">Dr. {appointment.doctor.name}</p>
-                </div>
+      <ConfettiEffect />
+      <div className="container mx-auto max-w-2xl ">
+        <Card className="overflow-hidden">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-600/20 to-transparent" />
+            <div className="relative p-6 text-center">
+              <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-yellow-400 p-4">
+                <Medal className="h-10 w-10 text-white" />
               </div>
-              <div className="flex items-center gap-3">
-                <CalendarDays className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Date</p>
-                  <p className="font-medium">
-                    {format(new Date(appointment.appointmentDateTime), 'PPP')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Time</p>
-                  <p className="font-medium">
-                    {format(new Date(appointment.appointmentDateTime), 'p')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Wallet className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Payment Method</p>
-                  {/* add fees */}
-                  <p className="font-medium">{appointment.fees}</p>
-                  <p className="font-medium">{" "}{appointment.paymentMethod}</p>
-                </div>
-              </div>
+              <h1 className="mb-2 text-3xl font-bold">Congratulations!</h1>
+              <p className="text-muted-foreground">
+                Your appointment has been successfully booked
+              </p>
             </div>
           </div>
-          <p className="text-center text-muted-foreground">
+          <CardContent className="space-y-6 p-6">
+            <div className="rounded-lg bg-muted p-4">
+              <div className="grid gap-4">
+                <div className="flex items-center gap-3">
+                  <Stethoscope className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Doctor</p>
+                    <p className="font-medium">Dr. {appointment.doctor.name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CalendarDays className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date</p>
+                    <p className="font-medium">
+                      {format(new Date(appointment.appointmentDateTime), "PPP")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Time</p>
+                    <p className="font-medium">
+                      {format(new Date(appointment.appointmentDateTime), "p")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Wallet className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Payment Method
+                    </p>
+                    {/* add fees */}
+                    <div className="flex items-center gap-1">
+                      <p className="font-medium">{appointment.fees}</p>
+                      <p className="font-medium">
+                        {" "}
+                        {appointment.paymentMethod}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-center text-muted-foreground">
               Please check your email for confirmation details.
             </p>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Link href="/appointments" className="flex-1">
-              <Button variant="outline" className="w-full">
-                View All Appointments
-              </Button>
-            </Link>
-            <Link href="/" className="flex-1">
-              <Button className="w-full">
-                Return to Home
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link href="/appointments" className="flex-1">
+                <Button variant="outline" className="w-full">
+                  View All Appointments
+                </Button>
+              </Link>
+              <Link href="/" className="flex-1">
+                <Button className="w-full">Return to Home</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-  )
+  );
 }
 

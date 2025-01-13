@@ -14,12 +14,13 @@ export function DoctorInfo({ doctor }: DoctorInfoProps) {
         <CardTitle className="text-2xl font-bold">Dr. {doctor.name}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="relative w-full h-96">
+        <div className="relative mx-auto ">
           <Image
             src={doctor.image}
             alt={doctor.name}
-            fill
-            className="  w-full h-full object-cover rounded-lg"
+            width={500}
+            height={500}
+            className="  object-cover rounded-lg mx-auto flex-shrink-0"
           />
         </div>
         <div className="space-y-2">

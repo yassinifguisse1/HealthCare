@@ -6,7 +6,7 @@ import { NotificationType, PaymentMethod, PaymentStatus } from '@prisma/client'
 import axios from 'axios';
 import { redirect } from "next/navigation";
 import { createNotificationAndSendEmail } from "@/lib/notificationHelper";
-
+import { startOfMonth, subMonths } from "date-fns";
 
 interface Proptype {
   params: { doctorId: string };
@@ -60,9 +60,6 @@ export async function POST(request: NextRequest, { params }: Proptype) {
 
     const appointmentDateTime = combineDateAndTime(new Date(appointmentDate), appointmentTime);
 
-    console.log("appointmentDate:", appointmentDate);
-    console.log("appointmentTime:", appointmentTime);
-    console.log("Combined datetime string:", `${appointmentDate.toISOString().split("T")[0]}T${appointmentTime}`);
     const appointment = await prisma.appointment.create({
       data: {
         userId,
@@ -86,7 +83,39 @@ export async function POST(request: NextRequest, { params }: Proptype) {
         },
       },
     });
-console.log("appoi === " , appointment)
+    // Calculate last month's revenue
+    const currentMonth = new Date();
+    const lastMonth = subMonths(currentMonth, 1);
+    const lastMonthRevenue = await prisma.appointment.aggregate({
+      _sum: {
+        fees: true,
+      },
+      where: {
+        createdAt: {
+          gte: startOfMonth(lastMonth),
+          lt: startOfMonth(currentMonth),
+        },
+        status: { not: "CANCELLED" },
+      },
+    });
+
+    // Update dashboard stats
+    await prisma.dashboardStats.upsert({
+      where: { id: 1 },
+      update: {
+        totalAppointments: { increment: 1 },
+        totalRevenue: { increment: appointment.fees },
+        lastMonthRevenue: lastMonthRevenue._sum.fees || 0,
+      },
+      create: {
+        id: 1,
+        totalAppointments: 1,
+        totalRevenue: appointment.fees,
+        lastMonthRevenue: lastMonthRevenue._sum.fees || 0,
+      },
+    });
+
+
 
     // Create notification and send email
     await createNotificationAndSendEmail(
@@ -217,6 +246,20 @@ export async function PUT(
     const { status } = await request.json()
     const appointmentId = params.doctorId
 
+
+    if (!["PENDING", "SCHEDULED", "CANCELLED"].includes(status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+    }
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: { doctor: true },
+    })
+
+    if (!appointment) {
+      return NextResponse.json({ error: "Appointment not found" }, { status: 404 })
+    }
+    // 
+
     const updatedAppointment = await prisma.appointment.update({
       where: {
         id: appointmentId,
@@ -235,7 +278,9 @@ export async function PUT(
        
       }
     })
-    if (status === 'CANCELLED') {
+    // send notification and email that appointment is CANCELLED
+    if (status === 'CANCELLED' && appointment.status !== 'CANCELLED') {
+      await updateDashboardStats(-1, -appointment.fees)
       await createNotificationAndSendEmail(
         userId,
         updatedAppointment.id,
@@ -269,45 +314,65 @@ export async function DELETE(
   { params }: { params: { doctorId: string } }
 ) {
   try {
-    const { userId } = getAuth(request)
+    const { userId } = getAuth(request);
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       // redirect("/sign-in")
-
     }
 
-    const appointmentId = params.doctorId
+    const appointmentId = params.doctorId;
 
     const appointment = await prisma.appointment.findUnique({
       where: {
         id: appointmentId,
         userId: userId,
-      }
-    })
+      },
+    });
     if (!appointment) {
-      return NextResponse.json({ error: "Appointment not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Appointment not found" },
+        { status: 404 }
+      );
     }
     if (appointment.status === "CANCELLED") {
-      return NextResponse.json({ error: "Appointment already cancelled" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Appointment already cancelled" },
+        { status: 400 }
+      );
     }
-    
-    // Now delete the appointment
-   // Delete the appointment
-   await prisma.appointment.delete({
-    where: {
-      id: appointmentId,
-      userId: userId,
-    },
-  })
-  
-   
-    return NextResponse.json({ message: "Appointment deleted successfully" })
+
+    // Delete the appointment
+    await prisma.appointment.delete({
+      where: {
+        id: appointmentId,
+        userId: userId,
+      },
+    });
+    // Update dashboard statistics
+
+    await updateDashboardStats(-1, -appointment.fees);
+
+    return NextResponse.json({ message: "Appointment deleted successfully" });
   } catch (error) {
-    console.error("Error deleting appointment:", error)
+    console.error("Error deleting appointment:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
-    )
+    );
   }
 }
-
+async function updateDashboardStats(appointmentChange: number, revenueChange: number) {
+  await prisma.dashboardStats.upsert({
+    where: { id: 1 },
+    update: {
+      totalAppointments: { increment: appointmentChange },
+      totalRevenue: { increment: revenueChange },
+    },
+    create: {
+      id: 1,
+      totalAppointments: appointmentChange,
+      totalRevenue: revenueChange,
+      lastMonthRevenue: 0,
+    },
+  });
+}
