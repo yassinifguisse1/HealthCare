@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
             image: true,
           },
         },
+        rating: true
       },
       orderBy: {
         appointmentDateTime: 'desc',

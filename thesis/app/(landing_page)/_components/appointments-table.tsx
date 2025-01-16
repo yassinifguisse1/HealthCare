@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ChevronLeft, ChevronRight, MoreHorizontal, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MoreHorizontal, Search, Star as LucideStar } from 'lucide-react'
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAppointmentStatus, AppointmentStatus } from "@/lib/appointment"
 import Link from "next/link"
-import { PaymentMethod, Speciality } from "@prisma/client"
+import { PaymentMethod, Rating, Speciality } from "@prisma/client"
 import { format } from "date-fns"
 import axios from "axios"
 import { toast } from "sonner"
@@ -44,7 +44,7 @@ type Appointment = {
   paymentMethod: PaymentMethod
   doctor: Doctor
   status: AppointmentStatus
-  rating?: number
+  rating?: Rating
 }
 
 interface AppointmentsTableProps {
@@ -213,7 +213,9 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                       />
                     )}
                     {status === "COMPLETED" && appointment.rating?.value && (
-                      <div>Rating: {appointment.rating.value}/5</div>
+                      <div>
+                        <StarRating appointment={appointment}/>
+                      </div>
                     )}
                     {status !== "COMPLETED" && (
                       <StatusBadge status={status} />
@@ -305,3 +307,24 @@ function StatusBadge({ status }: { status: AppointmentStatus  }) {
   )
 }
 
+export function StarRating ({appointment }:{ appointment : Appointment}){
+
+  const ratingValue = appointment.rating?.value ?? 0;
+  return(
+    <div className="flex space-x-1">
+    {[1, 2, 3, 4, 5].map((star) => (
+      <LucideStar
+      key={star}
+      className={`w-6 h-6 ${
+        ratingValue  >= star 
+          ? 'text-yellow-400 fill-yellow-400'
+          : 'text-gray-300'
+      } `}
+
+    />
+    ))}
+  </div>
+
+  )
+ 
+}
