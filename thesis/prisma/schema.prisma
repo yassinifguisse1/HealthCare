@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Doctor {
-  id           String        @id @default(cuid()) 
+  id           String        @id @default(cuid())
   name         String
   image        String
   speciality   Speciality
@@ -26,21 +26,22 @@ model Doctor {
 
 model Appointment {
   id                  String            @id @default(cuid())
-  userId              String
   patientName         String
-  patientEmail        String
   doctorId            String
   appointmentDateTime DateTime
   status              AppointmentStatus
   fees                Float
   paymentStatus       PaymentStatus
-  paymentMethod       PaymentMethod     
   transactionId       String?
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   notes               String?
+  patientEmail        String
+  userId              String
+  paymentMethod       PaymentMethod
   doctor              Doctor            @relation(fields: [doctorId], references: [id])
   Notifications       Notification[]
+  rating              Rating?
 
   @@index([userId])
   @@index([doctorId])
@@ -56,12 +57,22 @@ model Notification {
   appointmentId String?
   Appointment   Appointment?       @relation(fields: [appointmentId], references: [id])
 }
+
 model DashboardStats {
-  id               Int      @id @default(1)
-  totalAppointments Int     @default(0)
-  totalRevenue     Float    @default(0)
-  lastMonthRevenue Float    @default(0)
-  updatedAt        DateTime @updatedAt
+  id                Int      @id @default(1)
+  totalAppointments Int      @default(0)
+  totalRevenue      Float    @default(0)
+  updatedAt         DateTime @updatedAt
+  lastMonthRevenue  Float    @default(0)
+}
+
+model Rating {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  value         Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
 }
 
 enum Speciality {
@@ -95,6 +106,7 @@ enum PaymentStatus {
   PENDING
   FAILED
 }
+
 enum PaymentMethod {
   CASH
   CARD

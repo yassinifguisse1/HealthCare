@@ -35,91 +35,111 @@ type Appointment = {
   }
   fees: number
 }
+
+type ChartData = {
+  appointments: { date: string; count: number; name: string; appointments: number }[]
+  revenue: RevenueData[]
+}
+
+interface RevenueData {
+  date: string
+  amount: number
+  month: string
+  revenue: number
+}
+
+
 export default  function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [chartData, setChartData] = useState<ChartData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const { getToken } = useAuth()
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getToken } = useAuth();
 
   const fetchStats = useCallback(async () => {
     try {
-      setIsLoading(true)
-      const token = await getToken({ template: "TOKEN_Healthcare" })
+      setIsLoading(true);
+      const token = await getToken({ template: "TOKEN_Healthcare" });
       const response = await axios.get("/api/admin/dashboard", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      setStats(response.data)
+      });
+      setStats(response.data);
     } catch (error) {
-      console.error("Error fetching dashboard stats:", error)
-      toast.error("Failed to load dashboard statistics")
+      console.error("Error fetching dashboard stats:", error);
+      toast.error("Failed to load dashboard statistics");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [getToken])
+  }, [getToken]);
 
   const fetchAppointments = useCallback(async () => {
     try {
-      const token = await getToken()
+      const token = await getToken();
       const response = await axios.get("/api/admin/appointments", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setAppointments(response.data.appointments)
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAppointments(response.data.appointments);
     } catch (error) {
-      console.error("Error fetching appointments:", error)
-      toast.error("Failed to load appointments")
+      console.error("Error fetching appointments:", error);
+      toast.error("Failed to load appointments");
     }
-  }, [getToken])
+  }, [getToken]);
 
   const fetchChartData = useCallback(async () => {
     try {
-      const token = await getToken()
+      const token = await getToken();
       const response = await axios.get("/api/admin/charts", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setChartData(response.data)
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setChartData(response.data);
     } catch (error) {
-      console.error("Error fetching chart data:", error)
-      toast.error("Failed to load chart data")
+      console.error("Error fetching chart data:", error);
+      toast.error("Failed to load chart data");
     }
-  }, [getToken])
-
+  }, [getToken]);
 
   const refreshData = useCallback(async () => {
-    await Promise.all([fetchStats(), fetchAppointments(),fetchChartData()])
-  }, [fetchStats, fetchAppointments,fetchChartData])
+    await Promise.all([fetchStats(), fetchAppointments(), fetchChartData()]);
+  }, [fetchStats, fetchAppointments, fetchChartData]);
 
   useEffect(() => {
-    refreshData()
-  }, [refreshData])
+    refreshData();
+  }, [refreshData]);
 
-  const updateAppointmentStatus = useCallback(async (id: string, newStatus: Appointment['status']) => {
-    try {
-      const token = await getToken()
-      await axios.put(`/api/appointments/${id}`, { status: newStatus }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      
-      setAppointments(prevAppointments => 
-        prevAppointments.map(app => app.id === id ? { ...app, status: newStatus } : app)
-      )
-      
-      toast.success("Appointment status updated successfully")
-      await refreshData()
-    } catch (error) {
-      console.error("Error updating appointment status:", error)
-      toast.error("Failed to update appointment status")
-    }
-  }, [getToken, refreshData])
-  
+  const updateAppointmentStatus = useCallback(
+    async (id: string, newStatus: Appointment["status"]) => {
+      try {
+        const token = await getToken();
+        await axios.put(
+          `/api/appointments/${id}`,
+          { status: newStatus },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setAppointments((prevAppointments) =>
+          prevAppointments.map((app) =>
+            app.id === id ? { ...app, status: newStatus } : app
+          )
+        );
+
+        toast.success("Appointment status updated successfully");
+        await refreshData();
+      } catch (error) {
+        console.error("Error updating appointment status:", error);
+        toast.error("Failed to update appointment status");
+      }
+    },
+    [getToken, refreshData]
+  );
 
   return (
     <div className="space-y-8 ">
-      
-      <Header/>
-      
+      <Header />
+
       {isLoading ? (
         <DashboardCardsSkeleton />
       ) : stats ? (
@@ -127,65 +147,98 @@ export default  function AdminDashboard() {
           <Card className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-indigo-800 opacity-90"></div>
             <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Total Patients</CardTitle>
+              <CardTitle className="text-sm font-medium text-white">
+                Total Patients
+              </CardTitle>
               <Users className="h-4 w-4 text-purple-200" />
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="text-2xl font-bold text-white">{stats.totalPatients.count.toLocaleString()}</div>
-              <p className="text-xs text-purple-200">+{stats.totalPatients.change}% from last month</p>
+              <div className="text-2xl font-bold text-white">
+                {stats.totalPatients.count.toLocaleString()}
+              </div>
+              <p className="text-xs text-purple-200">
+                +{stats.totalPatients.change}% from last month
+              </p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-cyan-800 opacity-90"></div>
             <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Appointments</CardTitle>
+              <CardTitle className="text-sm font-medium text-white">
+                Appointments
+              </CardTitle>
               <Activity className="h-4 w-4 text-blue-200" />
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="text-2xl font-bold text-white">{stats.appointments.count.toLocaleString()}</div>
-              <p className="text-xs text-blue-200">+{stats.appointments.change} since yesterday</p>
+              <div className="text-2xl font-bold text-white">
+                {stats.appointments.count.toLocaleString()}
+              </div>
+              <p className="text-xs text-blue-200">
+                +{stats.appointments.change} since yesterday
+              </p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-emerald-800 opacity-90"></div>
             <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-white">
+                Revenue
+              </CardTitle>
               <DollarSign className="h-4 w-4 text-green-200" />
             </CardHeader>
             <CardContent className="relative z-10">
               <div className="text-2xl font-bold text-white">
-                ${stats.revenue.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                $
+                {stats.revenue.amount.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </div>
-              <p className="text-xs text-green-200">+{stats.revenue.change}% from last month</p>
+              <p className="text-xs text-green-200">
+                +{stats.revenue.change}% from last month
+              </p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-900 to-amber-800 opacity-90"></div>
             <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Patient Satisfaction</CardTitle>
+              <CardTitle className="text-sm font-medium text-white">
+                Patient Satisfaction
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-orange-200" />
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="text-2xl font-bold text-white">{stats.satisfaction.rate}%</div>
-              <p className="text-xs text-orange-200">+{stats.satisfaction.change}% from last month</p>
+              <div className="text-2xl font-bold text-white">
+                {stats.satisfaction.rate}%
+              </div>
+              <p className="text-xs text-orange-200">
+                +{stats.satisfaction.change}% from last month
+              </p>
             </CardContent>
           </Card>
         </div>
       ) : (
-        <div className="text-center text-muted-foreground">Failed to load dashboard statistics</div>
+        <div className="text-center text-muted-foreground">
+          Failed to load dashboard statistics
+        </div>
       )}
-      <Appointments appointments={appointments}
+      <Appointments
+        appointments={appointments}
         updateAppointmentStatus={updateAppointmentStatus}
         refreshData={refreshData}
-        />
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <AppointmentsChart data={chartData?.appointments || []} refreshData={refreshData}/>
-        <RevenueChart data={chartData?.revenue || []} refreshData={refreshData}/>
-     </div>
-
-    
+        <AppointmentsChart
+          data={chartData?.appointments || []}
+          refreshData={refreshData}
+        />
+        <RevenueChart
+          data={chartData?.revenue || []}
+          refreshData={refreshData}
+        />
+      </div>
     </div>
-  )
+  );
 }
 

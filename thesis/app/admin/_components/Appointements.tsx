@@ -10,8 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppointmentDetails } from "./AppointmentDetails"
 import { UpdateStatus } from "./UpdateStatus"
-import { toast } from "sonner"
-import { redirect } from "next/navigation"
+
 
 export type Appointment = {
   appointmentDateTime: string

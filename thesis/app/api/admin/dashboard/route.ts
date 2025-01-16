@@ -129,7 +129,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
-import { startOfMonth, subMonths, startOfYesterday, endOfYesterday } from "date-fns";
+import { startOfMonth, subMonths, startOfYesterday, endOfYesterday ,endOfMonth} from "date-fns";
 
 export async function GET(request: NextRequest) {
   try {
@@ -137,33 +137,26 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const testLastMonthRevenue = 5000; // Set this to any value you want to test
 
     // Get current and last month dates
     const currentMonth = new Date();
     const lastMonth = subMonths(currentMonth, 1);
     const yesterday = startOfYesterday();
     const yesterdayEnd = endOfYesterday();
+    const startOfLastMonth = startOfMonth(lastMonth);
+    const startOfCurrentMonth = startOfMonth(currentMonth);
+    const endOfLastMonth = endOfMonth(lastMonth);
 
    // Get dashboard stats
    let dashboardStats = await prisma.dashboardStats.findFirst({
     where: { id: 1 },
   });
 
-  // // If dashboardStats doesn't exist, create it with initial values
-  // if (!dashboardStats) {
-  //   await prisma.dashboardStats.create({
-  //     data: {
-  //       id: 1,
-  //       totalAppointments: 0,
-  //       totalRevenue: 0,
-  //       lastMonthRevenue: 0,
-  //     },
-  //   });
-  // }
 
 
     // Calculate total appointments and revenue for current and last month
-    const [totalAppointments, totalRevenue, lastMonthRevenue] = await Promise.all([
+    const [totalAppointments, totalRevenue, lastMonthRevenue,satisfactionRatings] = await Promise.all([
       prisma.appointment.count({
         where: {
           status: { not: "CANCELLED" },
@@ -182,14 +175,34 @@ export async function GET(request: NextRequest) {
           fees: true,
         },
         where: {
-          createdAt: {
-            gte: startOfMonth(lastMonth),
-            lt: startOfMonth(currentMonth),
-          },
-          status: { not: "CANCELLED" },
+          AND: [
+            {
+              appointmentDateTime: { // Changed from createdAt to appointmentDateTime
+                gte: startOfLastMonth,
+                lt: startOfCurrentMonth,
+              },
+            },
+            {
+              status: { not: "CANCELLED" },
+            }
+          ]
         },
       }),
+      prisma.rating.findMany({
+        where: {
+          appointment: {
+            status: "SCHEDULED",
+            appointmentDateTime: { gte: startOfLastMonth, lte: endOfLastMonth },
+          },
+        },
+        select: { value: true },
+      }),
     ]);
+    console.log('Total Appointments:', totalAppointments);
+    console.log('Total Revenue:', totalRevenue._sum.fees);
+    console.log('Last Month Revenue:', lastMonthRevenue._sum.fees);
+    const lastMonthRevenueValue = testLastMonthRevenue || lastMonthRevenue._sum.fees || 0;
+    console.log('Last Month Revenue lastMonthRevenueValue :', lastMonthRevenueValue);
 
 
 
@@ -256,11 +269,28 @@ export async function GET(request: NextRequest) {
       : 0;
 
 
-    // Calculate patient satisfaction (this would typically come from a ratings table)
-    // For this example, we'll use a mock calculation
-    const satisfactionRate = 98.2;
-    const lastMonthSatisfactionRate = 96.1;
+    // Calculate satisfaction rates
+    const currentSatisfactionRatings = satisfactionRatings.filter(r => r.value > 0);
+    const satisfactionRate = currentSatisfactionRatings.length > 0
+      ? (currentSatisfactionRatings.reduce((sum, r) => sum + r.value, 0) / currentSatisfactionRatings.length) * 20 // Assuming rating is 1-5, multiply by 20 to get percentage
+      : 0;
+
+    const lastMonthSatisfactionRatings = await prisma.rating.findMany({
+      where: {
+        appointment: {
+          status: "SCHEDULED",
+          appointmentDateTime: { gte: startOfMonth(subMonths(lastMonth, 1)), lt: startOfLastMonth },
+        },
+      },
+      select: { value: true },
+    });
+
+    const lastMonthSatisfactionRate = lastMonthSatisfactionRatings.length > 0
+      ? (lastMonthSatisfactionRatings.filter(r => r.value > 0).reduce((sum, r) => sum + r.value, 0) / lastMonthSatisfactionRatings.length) * 20
+      : 0;
+
     const satisfactionChange = satisfactionRate - lastMonthSatisfactionRate;
+
 
     return NextResponse.json({
       totalPatients: {
@@ -276,7 +306,7 @@ export async function GET(request: NextRequest) {
         change: revenueChange.toFixed(1),
       },
       satisfaction: {
-        rate: satisfactionRate,
+        rate: satisfactionRate.toFixed(1),
         change: satisfactionChange.toFixed(1),
       },
     });

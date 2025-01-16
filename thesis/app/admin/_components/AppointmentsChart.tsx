@@ -32,37 +32,9 @@ import { useCallback, useEffect, useState } from "react"
   }
 export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) {
   
-  // const [data, setData] = useState<AppointmentData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { getToken } = useAuth()
 
- 
-  // const fetchData = useCallback(async () => {
-  //   try {
-  //     setIsLoading(true)
-  //     const token = await getToken()
-  //     const response = await axios.get("/api/admin/charts", {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     })
-  //     setData(response.data.appointments)
-  //   } catch (error) {
-  //     console.error("Error fetching appointment data:", error)
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }, [getToken])
-
-  // useEffect(() => {
-  //   fetchData()
-  // }, [fetchData])
-
-  // useEffect(() => {
-  //   const handleRefresh = async () => {
-  //     await refreshData()
-  //     await fetchData()
-  //   }
-  //   handleRefresh()
-  // }, [refreshData, fetchData])
 
 
   useEffect(() => {
@@ -120,15 +92,7 @@ export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) 
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            {/* <ChartLegend content={<ChartLegendContent />} /> */}
-
-            {/* <YAxis
-              stroke="#888888"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `${value}`}
-            /> */}
+   
             <Bar dataKey="appointments" fill="#adfa1d" radius={[4, 4, 0, 0]}>
               <LabelList
                 dataKey="appointments"

@@ -28,6 +28,7 @@ import axios from "axios"
 import { toast } from "sonner"
 import { redirect, useRouter } from "next/navigation"
 import { useAuth } from "@clerk/nextjs"
+import { AppointmentRating } from "./AppointmentRating"
 
 
 type Doctor = {
@@ -43,7 +44,7 @@ type Appointment = {
   paymentMethod: PaymentMethod
   doctor: Doctor
   status: AppointmentStatus
-
+  rating?: number
 }
 
 interface AppointmentsTableProps {
@@ -122,6 +123,18 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
     }
   }
 
+  const handleRatingSubmit = async (appointmentId: string, rating: number) => {
+    try {
+      await axios.put(`/api/appointments/${appointmentId}`, { ratingValue: rating })
+      toast.success("Rating submitted successfully")
+      router.refresh()
+    } catch (error) {
+      console.error("Error submitting rating:", error)
+      toast.error("Failed to submit rating")
+      throw error
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -144,8 +157,12 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
               <TableHead>Doctor</TableHead>
               <TableHead>Date & Time</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead className="w-[70px]"></TableHead>
+              <TableHead >Payment</TableHead>
+              {/* <TableHead>Rating</TableHead> */}
+
+              <TableHead className="w-[70px] ">Rating</TableHead>
+              <TableHead className="w-[80px] ">Action</TableHead>
+
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -189,6 +206,21 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                     {appointment.paymentMethod.toLowerCase()}
                   </TableCell>
                   <TableCell>
+                    {status === "COMPLETED" && !appointment.rating?.value && (
+                      <AppointmentRating
+                        appointmentId={appointment.id}
+                        onRatingSubmit={handleRatingSubmit}
+                      />
+                    )}
+                    {status === "COMPLETED" && appointment.rating?.value && (
+                      <div>Rating: {appointment.rating.value}/5</div>
+                    )}
+                    {status !== "COMPLETED" && (
+                      <StatusBadge status={status} />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                  
                   <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button

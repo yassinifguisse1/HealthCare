@@ -3,7 +3,6 @@ import { getAuth } from "@clerk/nextjs/server";
 import prisma from '@/lib/db'
 import { appointmentSchema } from '@/lib/shema'
 import { NotificationType, PaymentMethod, PaymentStatus } from '@prisma/client'
-import axios from 'axios';
 import { redirect } from "next/navigation";
 import { createNotificationAndSendEmail } from "@/lib/notificationHelper";
 import { startOfMonth, subMonths } from "date-fns";
@@ -73,6 +72,11 @@ export async function POST(request: NextRequest, { params }: Proptype) {
         paymentMethod,
         transactionId: transactionId || null,
         notes,
+        rating: {
+          create: {
+            value: 0, // Initialize with 0
+          },
+        },
       },
       include: {
         doctor: {
@@ -81,23 +85,41 @@ export async function POST(request: NextRequest, { params }: Proptype) {
             speciality: true,
           },
         },
+        rating: true,
       },
     });
     // Calculate last month's revenue
     const currentMonth = new Date();
     const lastMonth = subMonths(currentMonth, 1);
-    const lastMonthRevenue = await prisma.appointment.aggregate({
-      _sum: {
-        fees: true,
+    const startOfLastMonth = startOfMonth(lastMonth);
+  const startOfCurrentMonth = startOfMonth(currentMonth);
+
+  // Log the date ranges for debugging
+  console.log('Last Month Start:', startOfLastMonth);
+  console.log('Current Month Start:', startOfCurrentMonth);
+
+  const lastMonthRevenue = await prisma.appointment.aggregate({
+    _sum: {
+      fees: true,
+    },
+    where: {
+      appointmentDateTime: {
+        gte: startOfLastMonth,
+        lt: startOfMonth(currentMonth),
       },
-      where: {
-        createdAt: {
-          gte: startOfMonth(lastMonth),
-          lt: startOfMonth(currentMonth),
-        },
-        status: { not: "CANCELLED" },
-      },
-    });
+      status: { not: "CANCELLED" },
+    },
+  });
+
+  console.log('Last Month Revenue:', lastMonthRevenue._sum.fees || 0);
+
+    const lastMonthRevenueValue = lastMonthRevenue._sum.fees || 0;
+
+    
+  // First get the current stats
+  const currentStats = await prisma.dashboardStats.findFirst({
+    where: { id: 1 },
+  });
 
     // Update dashboard stats
     await prisma.dashboardStats.upsert({
@@ -105,13 +127,13 @@ export async function POST(request: NextRequest, { params }: Proptype) {
       update: {
         totalAppointments: { increment: 1 },
         totalRevenue: { increment: appointment.fees },
-        lastMonthRevenue: lastMonthRevenue._sum.fees || 0,
+        lastMonthRevenue: lastMonthRevenueValue,
       },
       create: {
         id: 1,
         totalAppointments: 1,
         totalRevenue: appointment.fees,
-        lastMonthRevenue: lastMonthRevenue._sum.fees || 0,
+        lastMonthRevenue: lastMonthRevenueValue,
       },
     });
 
@@ -170,7 +192,8 @@ export async function GET(request: NextRequest) {
             speciality: true,
             image: true
           }
-        }
+        },
+        rating: true
       },
       skip,
       take: limit,
@@ -243,11 +266,39 @@ export async function PUT(
 
     }
 
-    const { status } = await request.json()
+    const { status , ratingValue } = await request.json()
     const appointmentId = params.doctorId
+    console.log('status=====' ,status)
+    console.log('ratingValue ====' , ratingValue)
 
-
-    if (!["PENDING", "SCHEDULED", "CANCELLED"].includes(status)) {
+   // If only ratingValue is provided, update the rating without changing the status
+   if (ratingValue !== undefined && status === undefined) {
+    const updatedAppointment = await prisma.appointment.update({
+      where: {
+        id: appointmentId,
+        userId: userId,
+      },
+      data: {
+        rating: {
+          upsert: {
+            create: { value: ratingValue },
+            update: { value: ratingValue },
+          },
+        },
+      },
+      include: {
+        doctor: {
+          select: {
+            name: true,
+            speciality: true,
+          },
+        },
+        rating: true,
+      }
+    })
+    return NextResponse.json(updatedAppointment)
+  }
+    if (!["PENDING", "SCHEDULED", "CANCELLED", "COMPLETED"].includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 })
     }
     const appointment = await prisma.appointment.findUnique({
@@ -267,6 +318,12 @@ export async function PUT(
       },
       data: {
         status,
+        rating: ratingValue !== undefined ? {
+          upsert: {
+            create: { value: ratingValue },
+            update: { value: ratingValue },
+          },
+        } : undefined,
       },
       include: {
         doctor: {
@@ -275,7 +332,7 @@ export async function PUT(
             speciality: true,
           },
         },
-       
+        rating: true,
       }
     })
     // send notification and email that appointment is CANCELLED
@@ -362,17 +419,54 @@ export async function DELETE(
   }
 }
 async function updateDashboardStats(appointmentChange: number, revenueChange: number) {
+  const currentMonth = new Date();
+  const lastMonth = subMonths(currentMonth, 1);
+  const startOfLastMonth = startOfMonth(lastMonth);
+  const startOfCurrentMonth = startOfMonth(currentMonth);
+
+  // Log the date ranges for debugging
+  console.log('Last Month Start:', startOfLastMonth);
+  console.log('Current Month Start:', startOfCurrentMonth);
+
+  const lastMonthRevenue = await prisma.appointment.aggregate({
+    _sum: {
+      fees: true,
+    },
+    where: {
+      AND: [
+        {
+          appointmentDateTime: { // Changed from createdAt to appointmentDateTime
+            gte: startOfLastMonth,
+            lt: startOfCurrentMonth,
+          },
+        },
+        {
+          status: { not: "CANCELLED" },
+        }
+      ]
+    },
+  });
+
+  console.log('Last Month Revenue:', lastMonthRevenue._sum.fees);
+
+  const lastMonthRevenueValue = lastMonthRevenue._sum.fees || 0;
+  // First get the current stats
+  const currentStats = await prisma.dashboardStats.findFirst({
+    where: { id: 1 },
+  });
   await prisma.dashboardStats.upsert({
     where: { id: 1 },
     update: {
       totalAppointments: { increment: appointmentChange },
       totalRevenue: { increment: revenueChange },
+      lastMonthRevenue: lastMonthRevenueValue,
     },
+   
     create: {
       id: 1,
       totalAppointments: appointmentChange,
       totalRevenue: revenueChange,
-      lastMonthRevenue: 0,
+      lastMonthRevenue: lastMonthRevenueValue,
     },
   });
 }

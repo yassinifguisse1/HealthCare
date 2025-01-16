@@ -42,32 +42,6 @@ export function RevenueChart({ data,refreshData }: RevenueChartProps) {
   const [isLoading, setIsLoading] = useState(true)
   const { getToken } = useAuth()
 
-  // const fetchData = useCallback(async () => {
-  //   try {
-  //     setIsLoading(true)
-  //     const token = await getToken()
-  //     const response = await axios.get("/api/admin/charts", {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     })
-  //     setData(response.data.revenue)
-  //   } catch (error) {
-  //     console.error("Error fetching revenue data:", error)
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }, [getToken])
-
-  // useEffect(() => {
-  //   fetchData()
-  // }, [fetchData])
-
-  // useEffect(() => {
-  //   const handleRefresh = async () => {
-  //     await refreshData()
-  //     await fetchData()
-  //   }
-  //   handleRefresh()
-  // }, [refreshData, fetchData])
 
   useEffect(() => {
     const handleRefresh = async () => {
