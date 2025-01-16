@@ -1,131 +1,3 @@
-// import { NextResponse, NextRequest } from "next/server";
-// import { getAuth } from "@clerk/nextjs/server"
-// import prisma from "@/lib/db"
-// import { startOfMonth, subMonths, startOfYesterday, endOfYesterday } from "date-fns"
-
-// export async function GET(request: NextRequest) {
-//   try {
-//     const { userId } = getAuth(request)
-//     if (!userId) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-//     }
-
-//     // Get current and last month dates
-//     const currentMonth = new Date()
-//     const lastMonth = subMonths(currentMonth, 1)
-//     const yesterday = startOfYesterday()
-//     const yesterdayEnd = endOfYesterday()
-
-//    // Get total appointments and revenue
-//    const [totalAppointments, totalRevenue] = await prisma.$transaction([
-//     prisma.appointment.count(),
-//     prisma.appointment.aggregate({
-//       _sum: {
-//         fees: true
-//       }
-//     })
-//   ])
-//     // Get current and last month patients
-//     const [currentMonthPatients, lastMonthPatients] = await Promise.all([
-//       prisma.appointment.groupBy({
-//         by: ['userId'],
-//         where: {
-//           createdAt: {
-//             gte: startOfMonth(currentMonth),
-//           },
-//         },
-//       }),
-//       prisma.appointment.groupBy({
-//         by: ['userId'],
-//         where: {
-//           createdAt: {
-//             gte: startOfMonth(lastMonth),
-//             lt: startOfMonth(currentMonth),
-//           },
-//         },
-//       }),
-//     ])
-// // Calculate revenue for current and last month
-// const [currentMonthRevenue, lastMonthRevenue] = await Promise.all([
-//   prisma.appointment.aggregate({
-//     _sum: {
-//       fees: true,
-//     },
-//     where: {
-//       createdAt: {
-//         gte: startOfMonth(currentMonth),
-//       },
-//     },
-//   }),
-//   prisma.appointment.aggregate({
-//     _sum: {
-//       fees: true,
-//     },
-//     where: {
-//       createdAt: {
-//         gte: startOfMonth(lastMonth),
-//         lt: startOfMonth(currentMonth),
-//       },
-//     },
-//   }),
-// ]);
-
-//  // Calculate revenue change percentage
-//  const currentRevenue = currentMonthRevenue._sum.fees || 0;
-//  const previousRevenue = lastMonthRevenue._sum.fees || 0;
-//  const revenueChange = previousRevenue
-//  ? ((currentRevenue - previousRevenue) / previousRevenue) * 100
-//  : 0;
-
-
-
-//     // Get yesterday's appointments count
-//     const yesterdayAppointments = await prisma.appointment.count({
-//       where: {
-//         createdAt: {
-//           gte: yesterday,
-//           lte: yesterdayEnd,
-//         },
-//       },
-//     })
-
-//     // Calculate percentage changes
-//     const patientChange = ((currentMonthPatients.length - lastMonthPatients.length) / lastMonthPatients.length) * 100
-   
-//     // Calculate patient satisfaction (this would typically come from a ratings table)
-//     // For this example, we'll use a mock calculation
-//     const satisfactionRate = 98.2
-//     const lastMonthSatisfactionRate = 96.1
-//     const satisfactionChange = satisfactionRate - lastMonthSatisfactionRate
-
-//     return NextResponse.json({
-//       totalPatients: {
-//         count: currentMonthPatients.length,
-//         change: patientChange.toFixed(1),
-//       },
-//       appointments: {
-//         count: totalAppointments,
-//         change: yesterdayAppointments,
-//       },
-//       revenue: {
-//         amount: totalRevenue._sum.fees || 0,
-//         change: revenueChange.toFixed(1),
-//       },
-//       satisfaction: {
-//         rate: satisfactionRate,
-//         change: satisfactionChange.toFixed(1),
-//       },
-//     })
-//   } catch (error) {
-//     console.error("Error fetching dashboard stats:", error)
-//     return NextResponse.json(
-//       { error: "Internal Server Error" },
-//       { status: 500 }
-//     )
-//   }
-// }
-
-
 import { NextResponse, NextRequest } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
@@ -156,7 +28,7 @@ export async function GET(request: NextRequest) {
 
 
     // Calculate total appointments and revenue for current and last month
-    const [totalAppointments, totalRevenue, lastMonthRevenue,satisfactionRatings] = await Promise.all([
+    const [totalAppointments, totalRevenue, lastMonthRevenue] = await Promise.all([
       prisma.appointment.count({
         where: {
           status: { not: "CANCELLED" },
@@ -187,22 +59,10 @@ export async function GET(request: NextRequest) {
             }
           ]
         },
-      }),
-      prisma.rating.findMany({
-        where: {
-          appointment: {
-            status: "SCHEDULED",
-            appointmentDateTime: { gte: startOfLastMonth, lte: endOfLastMonth },
-          },
-        },
-        select: { value: true },
-      }),
+      })
     ]);
-    console.log('Total Appointments:', totalAppointments);
-    console.log('Total Revenue:', totalRevenue._sum.fees);
-    console.log('Last Month Revenue:', lastMonthRevenue._sum.fees);
+   
     const lastMonthRevenueValue = testLastMonthRevenue || lastMonthRevenue._sum.fees || 0;
-    console.log('Last Month Revenue lastMonthRevenueValue :', lastMonthRevenueValue);
 
 
 
@@ -268,28 +128,38 @@ export async function GET(request: NextRequest) {
       ? ((dashboardStats.totalRevenue - dashboardStats.lastMonthRevenue) / dashboardStats.lastMonthRevenue) * 100
       : 0;
 
+      
+    // Calculate satisfaction rates
+    const [currentMonthRatings, lastMonthRatings] = await Promise.all([
+      prisma.rating.aggregate({
+        _avg: {
+          value: true,
+        },
+        where: {
+          createdAt: {
+            gte: startOfMonth(currentMonth),
+          },
+        },
+      }),
+      prisma.rating.aggregate({
+        _avg: {
+          value: true,
+        },
+        where: {
+          createdAt: {
+            gte: startOfMonth(lastMonth),
+            lt: startOfMonth(currentMonth),
+          },
+        },
+      }),
+    ]);
 
     // Calculate satisfaction rates
-    const currentSatisfactionRatings = satisfactionRatings.filter(r => r.value > 0);
-    const satisfactionRate = currentSatisfactionRatings.length > 0
-      ? (currentSatisfactionRatings.reduce((sum, r) => sum + r.value, 0) / currentSatisfactionRatings.length) * 20 // Assuming rating is 1-5, multiply by 20 to get percentage
-      : 0;
-
-    const lastMonthSatisfactionRatings = await prisma.rating.findMany({
-      where: {
-        appointment: {
-          status: "SCHEDULED",
-          appointmentDateTime: { gte: startOfMonth(subMonths(lastMonth, 1)), lt: startOfLastMonth },
-        },
-      },
-      select: { value: true },
-    });
-
-    const lastMonthSatisfactionRate = lastMonthSatisfactionRatings.length > 0
-      ? (lastMonthSatisfactionRatings.filter(r => r.value > 0).reduce((sum, r) => sum + r.value, 0) / lastMonthSatisfactionRatings.length) * 20
-      : 0;
-
+    const satisfactionRate = currentMonthRatings._avg.value || 0;
+    const lastMonthSatisfactionRate = lastMonthRatings._avg.value || 0;
     const satisfactionChange = satisfactionRate - lastMonthSatisfactionRate;
+
+
 
 
     return NextResponse.json({
