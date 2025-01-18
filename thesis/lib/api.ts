@@ -4,10 +4,11 @@ import { NextApiRequest } from "next";
 
 const getDoctorById = async (id: string , req:NextApiRequest) => {
     const { getToken } = getAuth(req);
-  
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
   try {
     const token = await getToken({ template: "TOKEN_Healthcare" });
-    const response = await axios.get(`http://localhost:3000/api/doctor/${id}`, {
+    const response = await axios.get(`${baseUrl}/api/doctor/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function DoctorListSkeleton() {
   return (
 
-    <div className="container mx-auto flex items-center flex-wrap justify-center  gap-4 p-5 border-2 w-full ">
+    <div className="container mx-auto flex items-center flex-wrap justify-center  gap-4 p-5  w-full ">
       {Array.from({ length: 8 }).map((_, index) => (
         <div key={index} className="overflow-hidden group cursor-pointer relative h-full flex flex-col w-full sm:max-w-[300px]">
           {/* Skeleton for the image */}
