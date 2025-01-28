@@ -1,9 +1,10 @@
 import React from 'react'
+import DoctorList from '../_components/DoctorList'
 
 const AllDoctorsPage = () => {
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col">
-      AllDoctorsPage
+    <div className="pt-32 flex flex-col">
+      <DoctorList/>
       </div>
   )
 }

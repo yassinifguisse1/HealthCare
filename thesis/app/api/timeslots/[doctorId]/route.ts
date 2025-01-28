@@ -24,7 +24,12 @@ function generateTimeSlots(start: string, end: string, interval: number) {
 
   return slots
 }
-
+/**
+ * @method GET
+ * @route ~/api/timeslots/[docotrId]
+ * @desc   Get available time slots for the given doctor on the selected date
+ * @access public
+ **/
 export async function GET(request: NextRequest, { params }: { params: { doctorId: string } }) {
   try {
     const { userId } = getAuth(request)

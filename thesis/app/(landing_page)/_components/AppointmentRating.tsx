@@ -13,9 +13,11 @@ export function AppointmentRating({ appointmentId, onRatingSubmit }: Appointment
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false); // New state to track submission status
+  const [isSubmitted, setIsSubmitted] = useState(false); // state to track submission status
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Track dialog visibility
 
+
+   // Component logic
   const handleRatingSubmit = async () => {
     if (rating === 0) {
       toast.error("Please select a rating before submitting")
@@ -38,6 +40,7 @@ export function AppointmentRating({ appointmentId, onRatingSubmit }: Appointment
 
   return (
     <div className="flex flex-col items-center space-y-2">
+      {/* Rating UI */}
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star

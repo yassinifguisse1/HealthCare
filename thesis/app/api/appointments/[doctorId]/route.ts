@@ -7,6 +7,13 @@ import { redirect } from "next/navigation";
 import { createNotificationAndSendEmail } from "@/lib/notificationHelper";
 import { startOfMonth, subMonths } from "date-fns";
 
+/**
+ * @method POST
+ * @route ~/api/appointments/%5BdoctorId%5D
+ * @desc Create a new appointment and update dashboard stats 
+ * @access public
+ **/
+
 interface Proptype {
   params: { doctorId: string };
 }
@@ -18,8 +25,6 @@ export async function POST(request: NextRequest, { params }: Proptype) {
       redirect("/sign-in")
 
     }
-    console.log('id params' ,  params.doctorId)
-
 
     const body = await request.json();
     const validation = appointmentSchema.safeParse(body);
@@ -163,6 +168,13 @@ export async function POST(request: NextRequest, { params }: Proptype) {
   }
 }
 
+
+/**
+ * @method GET
+ * @route ~/api/appointments/%5BdoctorId%5D
+ * @desc   Get single appointment details
+ * @access public
+ **/
 export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
@@ -248,12 +260,12 @@ function combineDateAndTime(date: Date, time: string): Date {
 
   return combinedDateTime;
 }
-
-
-
-
-
-
+/**
+ * @method PUT
+ * @route ~/api/appointments/%5BdoctorId%5D
+ * @desc   Update an appointment status or rating
+ * @access public
+ **/
 export async function PUT(
   request: NextRequest,
   { params }: { params: { doctorId: string } }
@@ -365,6 +377,12 @@ export async function PUT(
     )
   }
 }
+/**
+ * @method DELETE
+ * @route ~/api/appointments/%5BdoctorId%5D
+ * @desc   Delete an appointment 
+ * @access public
+ **/
 
 export async function DELETE(
   request: NextRequest,
@@ -397,6 +415,13 @@ export async function DELETE(
         { status: 400 }
       );
     }
+    
+    // Delete related ratings first
+    await prisma.rating.deleteMany({
+      where: {
+        appointmentId: appointmentId,
+      },
+    });
 
     // Delete the appointment
     await prisma.appointment.delete({
@@ -404,6 +429,7 @@ export async function DELETE(
         id: appointmentId,
         userId: userId,
       },
+
     });
     // Update dashboard statistics
 
@@ -470,3 +496,5 @@ async function updateDashboardStats(appointmentChange: number, revenueChange: nu
     },
   });
 }
+
+

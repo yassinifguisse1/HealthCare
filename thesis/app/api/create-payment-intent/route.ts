@@ -5,6 +5,12 @@ import Stripe from 'stripe'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
 })
+/**
+ * @method POST
+ * @route ~/api/create-payment-intent
+ * @desc   Create a payment intent for the given amount in USD
+ * @access public
+ **/
 
 export async function POST(request: NextRequest) {
   try {

@@ -3,12 +3,19 @@ import { getAuth } from "@clerk/nextjs/server"
 import prisma from "@/lib/db"
 import { redirect } from "next/navigation";
 
+
+/**
+ * @method GET
+ * @route ~/api/appointments
+ * @desc Get all appointments for the logged in user
+ * @access public
+ **/
 export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request)
     if (!userId) {
-      // return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      redirect("/sign-in")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      
     }
 
     const appointments = await prisma.appointment.findMany({

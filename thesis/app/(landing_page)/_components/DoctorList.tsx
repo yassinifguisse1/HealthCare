@@ -104,8 +104,7 @@ const DoctorList: React.FC<DoctorListProps> = ({
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-          ) 
-          
+          )       
           }
         </div>
 
@@ -123,7 +122,6 @@ export default DoctorList
   
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
-
     <Card className="overflow-hidden group cursor-pointer relative h-full flex flex-col w-full sm:max-w-[300px]">
       <Link href={`/appointments/${doctor.id}`}>
         <div className="relative aspect-square">
@@ -136,7 +134,10 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
             priority
           />
 
-          <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 
+          group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4"
+          >
             <div className="text-center flex flex-col items-center justify-center">
               <Badge className="text-xs mb-2 font-semibold truncate">
                 {doctor.name}
@@ -161,10 +162,12 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
             Book Appointment
           </Button>
         </Link>
-
-       
       </CardFooter>
     </Card>
-
   );
 }
+
+
+
+
+

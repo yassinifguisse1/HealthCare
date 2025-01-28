@@ -55,9 +55,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
-    console.log("Request userId:", userId);
-    // console.log("Request Headers:", request.headers);
-
+   
     if (!userId) {
       return NextResponse.json(
         { error: "User is not signed in." },
@@ -67,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     const isAdmin = await checkRole("admin"); // Assuming checkRole takes userId and role
     if (!isAdmin) {
-      // redirect('/')
       return NextResponse.json(
         { message: "Access denied. Admins only." },
         { status: 403 }
@@ -77,7 +74,6 @@ export async function POST(request: NextRequest) {
     // Parse the request body
     const body = await request.json();
     // validation safeparams zod
-
     const {
       name,
       speciality,
@@ -93,7 +89,6 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
     }
-
     // Create the doctor record in the database
     const newDoctor = await prisma.doctor.create({
       data: {
@@ -106,8 +101,9 @@ export async function POST(request: NextRequest) {
         image,
         addressLine1,
         addressLine2: addressLine2 || null,
-      },
-      select: { id: true, name: true, createdAt: true, updatedAt: true },
+      }
+      // ,
+      // select: { id: true, name: true, createdAt: true, updatedAt: true },
     });
     return NextResponse.json(newDoctor, { status: 201 });
   } catch (error) {

@@ -19,9 +19,7 @@ interface Proptype {
 export async function PUT(request: NextRequest, { params }: Proptype) {
   try {
     const { userId } = getAuth(request);
-    console.log("Request userId:", userId);
-    // console.log("Request Headers:", request.headers);
-
+    
     if (!userId) {
       return NextResponse.json(
         { error: "User is not signed in." },
@@ -31,7 +29,6 @@ export async function PUT(request: NextRequest, { params }: Proptype) {
 
     const isAdmin = await checkRole("admin"); // Assuming checkRole takes userId and role
     if (!isAdmin) {
-      // redirect('/')
       return NextResponse.json(
         { message: "Access denied. Admins only." },
         { status: 403 }
@@ -61,10 +58,7 @@ export async function PUT(request: NextRequest, { params }: Proptype) {
       addressLine1,
       addressLine2,
     } = body;
-
-    console.log("Validation:", validation);
-    console.log("Body:", body);
-
+    
     const updatedDoctor = await prisma.doctor.update({
       where: {
         id: params.id,

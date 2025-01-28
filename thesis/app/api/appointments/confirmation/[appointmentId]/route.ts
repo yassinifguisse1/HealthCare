@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuth } from "@clerk/nextjs/server"
 import prisma from '@/lib/db'
 
+
+
+/**
+ * @method GET
+ * @route ~/api/appointments/confirmation/%5BappointmentId%5D
+ * @desc Get appointment details for confirmation
+ * @access public
+ **/
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { appointmentId: string } }
