@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const testLastMonthRevenue = 5000; // Set this to any value you want to test
+   
 
     // Get current and last month dates
     const currentMonth = new Date();
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       })
     ]);
    
-    const lastMonthRevenueValue = testLastMonthRevenue || lastMonthRevenue._sum.fees || 0;
+    const lastMonthRevenueValue = lastMonthRevenue._sum.fees || 0;
 
 
 
@@ -72,13 +72,13 @@ export async function GET(request: NextRequest) {
       update: {
         totalAppointments,
         totalRevenue: totalRevenue._sum.fees || 0,
-        lastMonthRevenue: lastMonthRevenue._sum.fees || 0,
+        lastMonthRevenue: lastMonthRevenueValue
       },
       create: {
         id: 1,
         totalAppointments,
         totalRevenue: totalRevenue._sum.fees || 0,
-        lastMonthRevenue: lastMonthRevenue._sum.fees || 0,
+        lastMonthRevenue: lastMonthRevenueValue
       },
     });
 

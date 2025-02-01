@@ -280,8 +280,7 @@ export async function PUT(
 
     const { status , ratingValue } = await request.json()
     const appointmentId = params.doctorId
-    console.log('status=====' ,status)
-    console.log('ratingValue ====' , ratingValue)
+    
 
    // If only ratingValue is provided, update the rating without changing the status
    if (ratingValue !== undefined && status === undefined) {

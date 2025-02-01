@@ -36,7 +36,7 @@ export async function GET(
     if (!appointment) {
       return NextResponse.json({ error: 'Appointment not found' }, { status: 404 })
     }
-console.log("app" , appointment)
+
     return NextResponse.json(appointment)
   } catch (error) {
     console.error('Error fetching appointment:', error)

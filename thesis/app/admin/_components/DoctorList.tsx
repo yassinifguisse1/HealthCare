@@ -149,7 +149,7 @@ function DoctorCard({
           />
           <div className="absolute inset-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
             <div className="text-center flex flex-col items-center justify-center">
-              <Badge className="text-xs mb-2 font-semibold truncate">
+              <Badge className="text-xs mb-5 font-semibold truncate">
                 {doctor.name}
               </Badge>
               <Badge variant="outline" className="text-xs">
@@ -159,21 +159,24 @@ function DoctorCard({
           </div>
         </div>
         <CardContent className="p-3">
-          <h3 className="font-semibold text-sm mb-1 truncate">{doctor.name}</h3>
-          <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
-          <p className="text-xs text-muted-foreground">
-            {doctor.experience} experience
+          <h3 className="font-semibold text-sm mb-2 truncate">{doctor.name}</h3>
+          <Badge className="mb-1 text-xs ">{doctor.speciality}</Badge>
+
+          <p className="text-sm font-semibold pt-2">
+            Degree:{" "}
+            <span className=" text-muted-foreground">{doctor.degree}</span>
+          </p>
+          <p className="text-sm font-semibold py-1">
+            Experience:{" "}
+            <span className=" text-muted-foreground">{doctor.experience} </span>
           </p>
           {/* about */}
-          <p className="text-xs text-muted-foreground mb-1">
-            {doctor.about}
+          <p className="text-sm font-semibold mb-1 ">
+            About:
+            <span className=" text-muted-foreground line-clamp-1">
+              {doctor.about}
+            </span>
           </p>
-          {/* degree */}
-          <Badge className="text-xs text-muted-foreground">
-            {doctor.degree}
-          </Badge>
-
-
         </CardContent>
       </Link>
       <CardFooter className="flex justify-between relative pb-9">

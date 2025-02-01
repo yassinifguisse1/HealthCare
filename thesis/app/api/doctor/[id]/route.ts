@@ -96,11 +96,9 @@ export async function PUT(request: NextRequest, { params }: Proptype) {
  **/
 
 export async function GET(request: NextRequest, { params }: Proptype) {
-  console.log("Received params:", params);
 
   try {
     const { userId } = getAuth(request);
-    console.log("Request userId:", userId);
 
     if (!userId) {
       return NextResponse.json(
@@ -135,7 +133,6 @@ export async function GET(request: NextRequest, { params }: Proptype) {
  **/
 export async function DELETE(request: NextRequest, { params }: Proptype) {
   try {
-    console.log("Received params:", params);
     const { userId } = getAuth(request);
     if (!userId) {
       redirect("/sign-in");

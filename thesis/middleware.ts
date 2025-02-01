@@ -5,7 +5,7 @@ const isAdminRoute = createRouteMatcher(['/admin(.*)'])
 const isProtectedRoute = createRouteMatcher(['/Myappointements(.*)', '/appointments(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
+  const { userId , sessionClaims} = await auth();
 
   // Allow access to home, about, and contact pages without sign-in
   if (["/", "/about", "/contact"].includes(req.nextUrl.pathname)) {
@@ -18,12 +18,11 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Protect all routes starting with `/admin`
-  if (
-    isAdminRoute(req) &&
-    (await auth()).sessionClaims?.metadata?.role !== "admin"
-  ) {
-    const url = new URL("/sign-in", req.url);
-    return NextResponse.redirect(url);
+  if (isAdminRoute(req)) {
+    if (!userId || sessionClaims?.metadata?.role !== 'admin') {
+      const url = new URL('/sign-in', req.url)
+      return NextResponse.redirect(url)
+    }
   }
   return NextResponse.next();
 });
