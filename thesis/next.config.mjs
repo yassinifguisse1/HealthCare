@@ -29,7 +29,13 @@ const nextConfig = {
     },
     reactStrictMode: true,
     images: {
-      domains: ['files.edgestore.dev'], // Add EdgeStore's domain here
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'files.edgestore.dev',
+          pathname: '/**',
+        },
+      ],
     },
   };
   
