@@ -409,12 +409,12 @@ export async function DELETE(
         { status: 404 }
       );
     }
-    if (appointment.status === "CANCELLED") {
-      return NextResponse.json(
-        { error: "Appointment already cancelled" },
-        { status: 400 }
-      );
-    }
+    // if (appointment.status === "CANCELLED") {
+    //   return NextResponse.json(
+    //     { error: "Appointment already cancelled" },
+    //     { status: 400 }
+    //   );
+    // }
     
     // Delete related ratings first
     await prisma.rating.deleteMany({
@@ -423,7 +423,7 @@ export async function DELETE(
       },
     });
 
-    // Delete the appointment
+    // Delete the appointment also if the status is Canceled
     await prisma.appointment.delete({
       where: {
         id: appointmentId,

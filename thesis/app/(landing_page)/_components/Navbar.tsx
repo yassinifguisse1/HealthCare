@@ -175,7 +175,6 @@ function MobileNavbar({ isOpen, onOpenChange, onClose }:MobileNavbarProps){
 
         <div className="flex items-center gap-3">
         <SignedIn>
-              {/* <Link href="/about" className="flex items-center gap-x-3"> */}
                 {isAdmin ? (
                   <div className="flex items-center gap-x-3">
                     <Link href="/admin" className="flex items-center gap-x-3">
@@ -196,7 +195,6 @@ function MobileNavbar({ isOpen, onOpenChange, onClose }:MobileNavbarProps){
                   </div>
                 )}
                 <UserButton userProfileMode="modal" />
-              {/* </Link> */}
             </SignedIn>
 
           <Sheet open={isOpen} onOpenChange={onOpenChange}>

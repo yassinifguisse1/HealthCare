@@ -178,6 +178,7 @@ function DoctorCard({
       </Link>
       <CardFooter className="flex justify-between relative pb-9">
         <Button
+          className="Edit"
           variant="outline"
           onClick={() => onEdit(doctor)}
           aria-label={`Edit ${doctor.name}`}
@@ -185,6 +186,7 @@ function DoctorCard({
           <Edit className="w-6 h-6" />
         </Button>
         <Button
+          className="Delete"
           variant="destructive"
           onClick={() => onDelete(doctor)}
           aria-label={`Delete ${doctor.name}`}
