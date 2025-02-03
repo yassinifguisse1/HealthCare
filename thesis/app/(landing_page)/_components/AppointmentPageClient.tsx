@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import DoctorList from './DoctorList'
 import { useDoctors } from '@/context/DoctorsContext'
 import { AppointmentSidebar } from './AppointmentSidebar'
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 
 
 const specialties: Speciality[] = [
@@ -75,7 +75,7 @@ export default function AppointmentPageClient() {
         onSpecialtyClick={handleSpecialtyClick}
         onClearFilter={handleClearFilter}
       />
-        <SidebarTrigger />
+        
       <SidebarInset className=" w-fulla ">
         <header className=" p-4  top-[70px] ">
           <h1 className="text-2xl font-bold">Available Doctors</h1>

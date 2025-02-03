@@ -1,9 +1,11 @@
+"use client"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
 import { Speciality } from "@prisma/client"
-import { Stethoscope, Baby, Brain, Flower2, HeartPulse, Microscope, X } from 'lucide-react'
+import { Stethoscope, Baby, Brain, Flower2, HeartPulse, Microscope, X, ArrowLeft } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import React from "react"
 
 interface AppointmentSidebarProps {
   specialties: Speciality[]
@@ -27,8 +29,13 @@ export function AppointmentSidebar({
   onSpecialtyClick,
   onClearFilter,
 }: AppointmentSidebarProps) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false)
   return (
-    <Sidebar className="border-r h-[calc(100vh-70px)] top-[70px] sticky" collapsible="icon">
+    <Sidebar data-collapsed={isCollapsed} className="border-r h-[calc(100vh-70px)] top-[70px] sticky" collapsible="icon">
+     <SidebarTrigger className="absolute top-0 right-0 z-10" onClick={() => setIsCollapsed(!isCollapsed)}>
+     <ArrowLeft className="[[data-collapsed=true]_&]:rotate-180"/>
+     </SidebarTrigger>
+     
       <SidebarHeader className="px-4 py-2  flex items-center bg-black">
         <h2 className="text-xl font-semibold group-data-[collapsible=icon]:hidden">Specialties</h2>
       </SidebarHeader>
