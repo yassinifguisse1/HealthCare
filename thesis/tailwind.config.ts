@@ -77,10 +77,19 @@ module.exports = {
   				'20%,50%': {
   					opacity: '0'
   				}
+  			},
+  			'spinner-leaf-fade': {
+  				'0%, 100%': {
+  					opacity: '0'
+  				},
+  				'50%': {
+  					opacity: '1'
+  				}
   			}
   		},
   		animation: {
-  			'caret-blink': 'caret-blink 1.25s ease-out infinite'
+  			'caret-blink': 'caret-blink 1.25s ease-out infinite',
+  			'spinner-leaf-fade': 'spinner-leaf-fade 800ms linear infinite'
   		}
   	}
   },
