@@ -1,3 +1,4 @@
+"use client"
 import { Button } from '@/components/ui/button';
 import Link from 'next/link'
 import React from 'react'
@@ -5,6 +6,7 @@ import ArrowWIcon from '@/assets/icons/arrow-w.svg'
 import cusorImage from '@/assets/images/cursor.png'
 import messageImagr from '@/assets/images/message.png'
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const Hero = () => {
   return (
@@ -30,20 +32,35 @@ const Hero = () => {
           <h1 className="text-5xl font-bold tracking-tighter sm:text-7xl xl:text-9xl  text-center bg-yellow-400Z sm:bg-red-500Z md:bg-green-500Z lg:bg-blue-500Z xl:bg-orange-500Z">
             Pick Your Doctor <br /> With Confidence
           </h1>
-          <Image
-            src={messageImagr}
-            alt=""
-            // width={200}
-            // height={200}
+          <motion.div
             className="absolute right-[500px] top-[80px] md:right-[490px] md:top-[90px] xl:right-[872px] xl:top-[170px] hidden sm:inline sm:size-[140px]  lg:size-[150px]  xl:size-[200px]"
-          />
-          <Image
-            src={cusorImage}
-            alt=""
-            // width={200}
-            // height={200}
+            drag
+            dragSnapToOrigin
+          >
+            <Image
+              src={messageImagr}
+              alt=""
+              // width={200}
+              // height={200}
+              className="max-w-none"
+              draggable={false}
+            />
+          </motion.div>
+
+          <motion.div
             className="absolute hidden sm:inline left-[468px] top-[0px] md:left-[498px] md:top-[0px] lg:top-[0px]  xl:left-[866px] xl:top-[20px] sm:size-[140px]  lg:size-[150px]  xl:size-[200px]"
-          />
+            drag
+            dragSnapToOrigin
+          >
+            <Image
+              src={cusorImage}
+              alt=""
+              // width={200}
+              // height={200}
+              className="max-w-none"
+              draggable={false}
+            />
+          </motion.div>
         </div>
         <p className="md:text-xl  text-center mt-8 max-w-md">
           Access top-tier health consultations from the comfort of your home or

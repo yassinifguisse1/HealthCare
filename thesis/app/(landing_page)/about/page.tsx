@@ -3,6 +3,7 @@ import { Heart, Shield, Clock, Brain, Stethoscope, Users } from "lucide-react";
 import AboutImage from "@/assets/assets_frontend/about_image.png";
 import { HeroHighlight } from "@/components/ui/hero-highlight";
 import {teams} from '@/assets/assets_frontend/assets'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AboutPage() {
   return (
@@ -94,21 +95,21 @@ export default function AboutPage() {
             />
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-12">Our Values</h2>
-          <p className="text-gray-300 mb-12 max-w-2xl">
+          <p className="text-gray-300 mb-12 max-w-2xl text-md">
             We&apos;re committed to delivering exceptional healthcare services
             with compassion, expertise, and cutting-edge medical solutions.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {values.map((value) => (
-              <div key={value.title} className="space-y-4">
-                <div className="flex items-center gap-4">
+              <Card key={value.title} className="space-y-2 ">
+                <CardHeader className="flex items-center gap-2">
                   <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
                     {value.icon}
                   </div>
-                  <h3 className="font-semibold text-lg">{value.title}</h3>
-                </div>
-                <p className="text-gray-300">{value.description}</p>
-              </div>
+                  <CardTitle className="font-semibold text-lg">{value.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-gray-300">{value.description}</CardContent>
+              </Card>
             ))}
           </div>
         </section>
@@ -116,7 +117,7 @@ export default function AboutPage() {
         {/* Team Section */}
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-4xl font-bold mb-4">Our team</h2>
-          <p className="text-gray-400 text-xl mb-12 max-w-3xl">
+          <p className="text-gray-400 text-md mb-12 max-w-3xl">
             We&apos;re a dedicated group of healthcare professionals committed
             to providing exceptional care and improving patient outcomes.
           </p>
