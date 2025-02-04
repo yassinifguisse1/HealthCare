@@ -23,6 +23,7 @@ import { useUser } from "@clerk/nextjs";
 
 const items = [
   {labe : "Home" , link : "/"},
+  {labe : "Doctors" , link : "/appointments"},
   {labe : "Appointments" , link : "/MyAppointements"},
   {labe : "About" , link : "/about"},
   {labe : "Contact" , link : "/contact"}

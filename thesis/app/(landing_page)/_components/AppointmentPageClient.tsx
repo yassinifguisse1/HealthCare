@@ -25,7 +25,7 @@ export default function AppointmentPageClient() {
   const [selectedSpecialty, setSelectedSpecialty] = useState<Speciality | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { doctors, isLoading , error  } = useDoctors();
+  const {doctors, isLoading , error  } = useDoctors();
 
   useEffect(() => {
     if (doctors) {
@@ -62,39 +62,55 @@ export default function AppointmentPageClient() {
     return <LoadingSkeleton />
   }
 
-  if (error) {
-    return <ErrorMessage message={error} />
-  }
+  
+  // if (error) {
+  //   return (
+  //     <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px] items-center justify-center">
+  //       <p className="text-center text-muted-foreground">
+  //         Failed to load doctors. Please check your internet connection and try again.
+  //       </p>
+  //     </div>
+  //   )
+  // }
 
   return (
-  <SidebarProvider style={{
-    "--sidebar-width": "20rem",
-    "--sidebar-width-mobile": "20rem",
-    "--sidebar-width-icon": "4rem",
-  } as React.CSSProperties}>
-
-    <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px]  w-full">
+    <SidebarProvider
+    style={
+      {
+        "--sidebar-width": "20rem",
+        "--sidebar-width-mobile": "20rem",
+        "--sidebar-width-icon": "4rem",
+      } as React.CSSProperties
+    }
+  >
+    <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px] w-full">
       <AppointmentSidebar
         specialties={specialties}
         selectedSpecialty={selectedSpecialty}
         onSpecialtyClick={handleSpecialtyClick}
         onClearFilter={handleClearFilter}
       />
-        <SidebarTrigger/>
-      <SidebarInset className=" w-fulla ">
-        <header className=" p-4  top-[70px] ">
+      <SidebarTrigger />
+      <SidebarInset className="w-full">
+        <header className="p-4 top-[70px]">
           <h1 className="text-2xl font-bold">Available Doctors</h1>
-        
         </header>
-        <main className=" w-full p-4">
-          {/* <DoctorList doctors={filteredDoctors} /> */}
-          <DoctorList 
-              doctors={paginatedDoctors} 
+        <main className="w-full p-4">
+          {isLoading ? (
+            <LoadingSkeleton />
+          ) : error ? (
+            <div className="text-center text-muted-foreground">
+              Failed to load doctors. Please check your internet connection and try again.
+            </div>
+          ) : (
+            <DoctorList
+              doctors={paginatedDoctors}
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
               isLoading={isLoading}
             />
+          )}
         </main>
       </SidebarInset>
     </div>
