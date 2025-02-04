@@ -31,16 +31,13 @@ export function AppointmentSidebar({
 }: AppointmentSidebarProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
   return (
-    <Sidebar data-collapsed={isCollapsed} className="border-r h-[calc(100vh-70px)] top-[70px] sticky" collapsible="icon">
-     <SidebarTrigger className="absolute top-0 right-0 z-10" onClick={() => setIsCollapsed(!isCollapsed)}>
-     <ArrowLeft className="[[data-collapsed=true]_&]:rotate-180"/>
-     </SidebarTrigger>
-     
-      <SidebarHeader className="px-4 py-2  flex items-center bg-black">
+    <Sidebar data-collapsed={isCollapsed} className="border-r h-[calc(100vh-70px)] top-[70px] bg-[#D3D3D3] text-black sticky" collapsible="icon">
+
+      <SidebarHeader className="px-4 py-2  flex items-center ">
         <h2 className="text-xl font-semibold group-data-[collapsible=icon]:hidden">Specialties</h2>
       </SidebarHeader>
       <SidebarContent>
-        <ScrollArea className="h-[calc(100vh-70px-4rem)] bg-black">
+        <ScrollArea className="h-[calc(100vh-70px-4rem)] ">
           <div className="space-y-2 p-2">
             {specialties.map((specialty) => {
               const Icon = specialtyIcons[specialty] || Stethoscope

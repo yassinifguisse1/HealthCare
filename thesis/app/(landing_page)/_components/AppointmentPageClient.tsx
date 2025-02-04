@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import DoctorList from './DoctorList'
 import { useDoctors } from '@/context/DoctorsContext'
 import { AppointmentSidebar } from './AppointmentSidebar'
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 
 
 const specialties: Speciality[] = [
@@ -67,15 +67,20 @@ export default function AppointmentPageClient() {
   }
 
   return (
-  <SidebarProvider defaultOpen>
-    <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px] bg-black w-full">
+  <SidebarProvider style={{
+    "--sidebar-width": "20rem",
+    "--sidebar-width-mobile": "20rem",
+    "--sidebar-width-icon": "4rem",
+  } as React.CSSProperties}>
+
+    <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px]  w-full">
       <AppointmentSidebar
         specialties={specialties}
         selectedSpecialty={selectedSpecialty}
         onSpecialtyClick={handleSpecialtyClick}
         onClearFilter={handleClearFilter}
       />
-        
+        <SidebarTrigger/>
       <SidebarInset className=" w-fulla ">
         <header className=" p-4  top-[70px] ">
           <h1 className="text-2xl font-bold">Available Doctors</h1>
