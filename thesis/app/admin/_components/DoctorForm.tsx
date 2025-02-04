@@ -123,11 +123,11 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
 
         if (initialData) {
           updatedDoctor = await updateDoctor(initialData.id, doctorData);
-          toast.success("Doctor updated successfully!");
+          toast.success("Doctor updated successfully! 🎉");
           
         } else {
           updatedDoctor = await addDoctor(doctorData);
-          toast.success("Doctor added successfully!");
+          toast.success("Doctor added successfully! 🎉");
         }
         setProgress(100);
         await new Promise((resolve) => setTimeout(resolve, 500));
@@ -140,7 +140,7 @@ export function DoctorForm({ initialData , setIsDialogOpen,onDoctorUpdated , edi
       });
     } catch (err) {
       console.error(err);
-      toast.error(initialData ? "Failed to update doctor" : "Failed to add doctor");
+      toast.error(initialData ? "Failed to update doctor. ❌" : "Failed to add doctor. ❌");
       setProgress(0);
     }
   }

@@ -94,11 +94,11 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
     setIsLoading(true)
     try {
       await axios.put(`/api/appointments/${appointmentId}`, { status: "CANCELLED" })
-      toast.success("Appointment cancelled successfully")
+      toast.success("Appointment cancelled successfully 🎉")
       router.refresh()
     } catch (error) {
       console.error("Error cancelling appointment:", error)
-      toast.error("Failed to cancel appointment")
+      toast.error("Failed to cancel appointment ❌")
     }
     finally {
       setIsLoading(false)
@@ -112,23 +112,23 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
       const response = await axios.delete(`/api/appointments/${appointmentId}`);
       
       if (response.status === 200) {
-        toast.success("Appointment deleted successfully");
+        toast.success("Appointment deleted successfully 🎉");
         router.refresh();
       } else if (response.status === 400) {
-        toast.error("Appointment already cancelled");
+        toast.error("Appointment already cancelled ❌");
       } else {
-        toast.error("Failed to delete appointment");
+        toast.error("Failed to delete appointment ❌");
       }
     } catch (error) {
       console.error("Error deleting appointment:", error);
       if (axios.isAxiosError(error) && error.response) {
         if (error.response.status === 400) {
-          toast.error("Appointment already cancelled");
+          toast.error("Appointment already cancelled ❌");
         } else {
-          toast.error("Failed to delete appointment");
+          toast.error("Failed to delete appointment ❌");
         }
       } else {
-        toast.error("Failed to delete appointment");
+        toast.error("Failed to delete appointment ❌");
       }
     }finally {
       setIsLoading(false)
@@ -140,11 +140,11 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
 
     try {
       await axios.put(`/api/appointments/${appointmentId}`, { ratingValue: rating })
-      toast.success("Rating submitted successfully")
+      toast.success("Rating submitted successfully 🎉")
       router.refresh()
     } catch (error) {
       console.error("Error submitting rating:", error)
-      toast.error("Failed to submit rating")
+      toast.error("Failed to submit rating ❌")
       throw error
     }finally {
       setIsLoading(false)

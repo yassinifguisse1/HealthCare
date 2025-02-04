@@ -47,10 +47,10 @@ export function DoctorList({doctors,  onEdit, currentPage, totalPages, onPageCha
       setIsDeleting(true);
       try {
         await deleteDoctor(doctorToDelete.id);
-        toast.success("Doctor deleted successfully!");
+        toast.success("Doctor deleted successfully! 🎉");
       } catch (error) {
         console.error("Error deleting doctor:", error);
-        toast.error("Failed to delete doctor. Please try again.");
+        toast.error("Failed to delete doctor. ❌ Please try again.");
       } finally {
         setIsDeleting(false);
         setIsDialogOpen(false);
