@@ -25,10 +25,6 @@ export default  function AppointmentPage() {
       }
     }, [isLoaded, isSignedIn])
   
-    useEffect(() => {
-      console.log('userId in component =======', userId)
-    }, [userId])
-    // check if there is appointements
   
 
   useEffect(() => {

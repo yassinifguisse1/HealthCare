@@ -13,7 +13,6 @@ export const checkRole = async (role: Roles): Promise<boolean> => {
 
   // Ensure metadata and role exist
   const userRole = sessionClaims?.metadata?.role as Roles;
-  console.log("User Role from Session Claims:", userRole);
 
   return userRole === role;
   } catch (error) {

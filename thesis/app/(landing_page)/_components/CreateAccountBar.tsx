@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import React from 'react'
 import DoctorImage from '@/assets/assets_frontend/appointment_img.png'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const CreateAccountBar = () => {
   return (
@@ -15,9 +16,14 @@ const CreateAccountBar = () => {
             <p className="text-base sm:text-lg text-purple-200 max-w-md mx-auto md:mx-0">
               With 100+ Trusted Doctors
             </p>
-            <Button size="lg" className="px-6 sm:px-8 py-2 sm:py-3 bg-purple-500 hover:bg-purple-600 text-white text-sm sm:text-base">
-              Create Account
-            </Button>
+            <Link href="/sign-in">
+              <Button
+                size="lg"
+                className="px-6 sm:px-8 py-2 sm:py-3 bg-purple-500 hover:bg-purple-600 text-white text-sm sm:text-base"
+              >
+                Create Account
+              </Button>
+            </Link>
           </div>
           <div className="w-full md:w-1/3 order-1 md:order-2 hidden md:block">
             <div className="relative w-full aspect-square max-w-[300px] md:max-w-none mx-auto">
@@ -32,7 +38,7 @@ const CreateAccountBar = () => {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 export default CreateAccountBar

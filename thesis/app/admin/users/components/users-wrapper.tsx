@@ -23,10 +23,8 @@ export default function UsersWrapper({ children }: { children: React.ReactNode }
     const form = event.currentTarget
     const formData = new FormData(form)
     const data = Object.fromEntries(formData.entries())
-    console.log("data" + JSON.stringify(data, null, 2))
 
     const action = form.getAttribute("data-action") as "setRole" | "removeRole"
-    console.log("action" + JSON.stringify(action, null, 2))
 
     try {
       const result = await (action === "setRole" ? setRole(formData) : removeRole(formData))

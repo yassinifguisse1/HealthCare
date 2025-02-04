@@ -38,17 +38,12 @@ const Footer = () => {
               About us
             </Link>
             <Link
-              href="/delivery"
+              href="/contact"
               className="mb-2 hover:text-primary transition-colors"
             >
-              Delivery
+              Contact
             </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-primary transition-colors"
-            >
-              Privacy policy
-            </Link>
+            
           </div>
 
           {/* Get in Touch */}
@@ -79,7 +74,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-200 text-center">
           <p className="text-sm">
-            Copyright 2024 - All Rights Reserved.
+            Copyright 2025 - All Rights Reserved.
           </p>
         </div>
       </div>

@@ -12,7 +12,6 @@ async function getAppointments() {
   if(!userId){
     redirect('/sign-in')
   }
-  console.log('userId in page =======', userId)
 
  
 

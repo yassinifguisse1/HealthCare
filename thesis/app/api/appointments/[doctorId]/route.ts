@@ -99,9 +99,6 @@ export async function POST(request: NextRequest, { params }: Proptype) {
     const startOfLastMonth = startOfMonth(lastMonth);
   const startOfCurrentMonth = startOfMonth(currentMonth);
 
-  // Log the date ranges for debugging
-  console.log('Last Month Start:', startOfLastMonth);
-  console.log('Current Month Start:', startOfCurrentMonth);
 
   const lastMonthRevenue = await prisma.appointment.aggregate({
     _sum: {
@@ -115,8 +112,6 @@ export async function POST(request: NextRequest, { params }: Proptype) {
       status: { not: "CANCELLED" },
     },
   });
-
-  console.log('Last Month Revenue:', lastMonthRevenue._sum.fees || 0);
 
     const lastMonthRevenueValue = lastMonthRevenue._sum.fees || 0;
 
@@ -449,9 +444,6 @@ async function updateDashboardStats(appointmentChange: number, revenueChange: nu
   const startOfLastMonth = startOfMonth(lastMonth);
   const startOfCurrentMonth = startOfMonth(currentMonth);
 
-  // Log the date ranges for debugging
-  console.log('Last Month Start:', startOfLastMonth);
-  console.log('Current Month Start:', startOfCurrentMonth);
 
   const lastMonthRevenue = await prisma.appointment.aggregate({
     _sum: {
@@ -471,8 +463,6 @@ async function updateDashboardStats(appointmentChange: number, revenueChange: nu
       ]
     },
   });
-
-  console.log('Last Month Revenue:', lastMonthRevenue._sum.fees);
 
   const lastMonthRevenueValue = lastMonthRevenue._sum.fees || 0;
   // First get the current stats

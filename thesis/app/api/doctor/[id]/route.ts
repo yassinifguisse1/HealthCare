@@ -80,7 +80,7 @@ export async function PUT(request: NextRequest, { params }: Proptype) {
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
+
     return NextResponse.json(
       { message: "internal server error" },
       { status: 500 }
@@ -117,7 +117,6 @@ export async function GET(request: NextRequest, { params }: Proptype) {
     }
     return NextResponse.json(doctor, { status: 200 });
   } catch (error) {
-    console.log("Eror thisi is ", error);
     return NextResponse.json(
       { message: "internal server errorb" },
       { status: 500 }
@@ -167,7 +166,7 @@ export async function DELETE(request: NextRequest, { params }: Proptype) {
     });
     return NextResponse.json({ message: "Doctor deleted" }, { status: 200 });
   } catch (error) {
-    console.log("Error this is ", error);
+
     return NextResponse.json(
       { message: "internal server error" },
       { status: 500 }

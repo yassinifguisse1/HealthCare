@@ -68,9 +68,11 @@ const Hero = () => {
           guidance and ensure your well-being.
         </p>
         <div className="flex justify-center items-center mt-8">
-          <Button className="py-3 px-5 rounded-lg font-medium">
-            Get Appointement
-          </Button>
+          <Link href="/appointments">
+            <Button className="py-3 px-5 rounded-lg font-medium">
+              Get Appointement
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
