@@ -14,7 +14,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/healthcare-app.git
+git clone https://github.com/yassinifguisse1/HealthCare.git
 cd healthcare-app
 
 
