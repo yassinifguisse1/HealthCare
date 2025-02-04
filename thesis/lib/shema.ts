@@ -91,3 +91,15 @@ export const appointmentSchema = z.object({
   notes: z.string().optional(),
 });
 export type AppointmentFormData = z.infer<typeof appointmentSchema>;
+
+
+
+export const contactFormSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  message: z.string().min(10, "Message must be at least 10 characters long"),
+})
+
+export type ContactFormData = z.infer<typeof contactFormSchema>

@@ -4,6 +4,7 @@ import LogoTocker from "./_components/LogoTocker";
 import SpecialityMenu from "./_components/SpecialityMenu";
 import CreateAccountBar from "./_components/CreateAccountBar";
 import { DoctorsProvider } from "@/context/DoctorsContext";
+import Footer from "./_components/Footer";
 
 export default function Home() {
    
@@ -15,6 +16,7 @@ export default function Home() {
       <SpecialityMenu />
       <DoctorList/>
       <CreateAccountBar />
+      <Footer />
     </DoctorsProvider>
   );
 }
