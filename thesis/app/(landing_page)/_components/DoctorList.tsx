@@ -149,10 +149,23 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
           </div>
         </div>
         <CardContent className="p-3">
-          <h3 className="font-semibold text-sm mb-1 truncate">{doctor.name}</h3>
-          <Badge className="mb-1 text-xs">{doctor.speciality}</Badge>
-          <p className="text-xs text-muted-foreground">
-            {doctor.experience} exp.
+          <h3 className="font-semibold text-sm mb-2 truncate">{doctor.name}</h3>
+          <Badge className="mb-1 text-xs ">{doctor.speciality}</Badge>
+
+          <p className="text-sm font-semibold pt-2">
+            Degree:{" "}
+            <span className=" text-muted-foreground">{doctor.degree}</span>
+          </p>
+          <p className="text-sm font-semibold py-1">
+            Experience:{" "}
+            <span className=" text-muted-foreground">{doctor.experience} </span>
+          </p>
+          {/* about */}
+          <p className="text-sm font-semibold mb-1 ">
+            About:
+            <span className=" text-muted-foreground line-clamp-1">
+              {doctor.about}
+            </span>
           </p>
         </CardContent>
       </Link>
