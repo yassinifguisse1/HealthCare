@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+export const dynamic = "force-dynamic"
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
 import { checkRole } from "@/utils/roles";
@@ -142,7 +143,7 @@ export async function DELETE(request: NextRequest) {
       { message: "ALL Doctor deleted successfully!" },
       { status: 200 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

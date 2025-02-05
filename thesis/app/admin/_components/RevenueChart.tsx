@@ -1,7 +1,7 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
-import { useCallback, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 
 import {
   Card,
@@ -16,8 +16,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { useAuth } from "@clerk/nextjs"
-import axios from "axios"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TrendingUp } from 'lucide-react'
 
@@ -40,7 +38,7 @@ interface RevenueChartProps {
 export function RevenueChart({ data,refreshData }: RevenueChartProps) {
   // const [data, setData] = useState<RevenueData[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { getToken } = useAuth()
+  
 
 
   useEffect(() => {

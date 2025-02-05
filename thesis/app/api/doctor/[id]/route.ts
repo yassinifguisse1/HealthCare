@@ -1,5 +1,6 @@
-import { getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic"
+import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
 import { checkRole } from "@/utils/roles";
 import { updateFormSchema } from "@/lib/shema";
@@ -79,7 +80,7 @@ export async function PUT(request: NextRequest, { params }: Proptype) {
       { message: "Doctor Updated successfully!", updatedDoctor },
       { status: 200 }
     );
-  } catch (error) {
+  } catch {
 
     return NextResponse.json(
       { message: "internal server error" },
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest, { params }: Proptype) {
       return NextResponse.json({ message: "doctor not fund" }, { status: 404 });
     }
     return NextResponse.json(doctor, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "internal server errorb" },
       { status: 500 }
@@ -165,7 +166,7 @@ export async function DELETE(request: NextRequest, { params }: Proptype) {
       },
     });
     return NextResponse.json({ message: "Doctor deleted" }, { status: 200 });
-  } catch (error) {
+  } catch {
 
     return NextResponse.json(
       { message: "internal server error" },

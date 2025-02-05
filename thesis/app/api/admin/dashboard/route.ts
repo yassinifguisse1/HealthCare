@@ -1,7 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
+export const dynamic = "force-dynamic"
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
-import { startOfMonth, subMonths, startOfYesterday, endOfYesterday ,endOfMonth} from "date-fns";
+import { startOfMonth, subMonths, startOfYesterday, endOfYesterday } from "date-fns";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +19,6 @@ export async function GET(request: NextRequest) {
     const yesterdayEnd = endOfYesterday();
     const startOfLastMonth = startOfMonth(lastMonth);
     const startOfCurrentMonth = startOfMonth(currentMonth);
-    const endOfLastMonth = endOfMonth(lastMonth);
 
    // Get dashboard stats
    let dashboardStats = await prisma.dashboardStats.findFirst({

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Input } from "@/components/ui/input"; // shadcn/ui input
 import { Button } from "@/components/ui/button"; // shadcn/ui button
 import { Textarea } from "@/components/ui/textarea"; // shadcn/ui textarea
@@ -38,7 +38,7 @@ const ContactPage = () => {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to send message");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to send message.❌ Please try again later.");
     }
   };

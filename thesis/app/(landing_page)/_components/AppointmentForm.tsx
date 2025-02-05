@@ -64,27 +64,27 @@ function AppointmentFormContent({ doctor, doctorId }: AppointmentFormProps) {
   const paymentMethod = form.watch("paymentMethod")
 
   useEffect(() => {
+    async function createPaymentIntent() {
+      try {
+        const token = await getToken({ template: "TOKEN_Healthcare" })
+        const response = await axios.post('/api/create-payment-intent', {
+          amount: doctor.fees * 100, // amount in cents
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setClientSecret(response.data.clientSecret)
+      } catch (error) {
+        console.error("Error creating payment intent:", error)
+        toast.error("Failed to initialize payment. Please try again.")
+      }
+    }
+
     if (paymentMethod === PaymentMethod.CARD) {
       createPaymentIntent()
     }
-  }, [paymentMethod])
-
-  async function createPaymentIntent() {
-    try {
-      const token = await getToken({ template: "TOKEN_Healthcare" })
-      const response = await axios.post('/api/create-payment-intent', {
-        amount: doctor.fees * 100, // amount in cents
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setClientSecret(response.data.clientSecret)
-    } catch (error) {
-      console.error("Error creating payment intent:", error)
-      toast.error("Failed to initialize payment. Please try again.")
-    }
-  }
+  }, [getToken, doctor.fees, paymentMethod])
 
   async function onSubmit(values: AppointmentFormData) {
     if (values.paymentMethod === PaymentMethod.CARD) {

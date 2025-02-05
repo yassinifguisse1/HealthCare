@@ -1,4 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
+export const dynamic = "force-dynamic"
+
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from '@/lib/db'
 import { appointmentSchema } from '@/lib/shema'
@@ -97,7 +99,6 @@ export async function POST(request: NextRequest, { params }: Proptype) {
     const currentMonth = new Date();
     const lastMonth = subMonths(currentMonth, 1);
     const startOfLastMonth = startOfMonth(lastMonth);
-  const startOfCurrentMonth = startOfMonth(currentMonth);
 
 
   const lastMonthRevenue = await prisma.appointment.aggregate({
@@ -117,9 +118,6 @@ export async function POST(request: NextRequest, { params }: Proptype) {
 
     
   // First get the current stats
-  const currentStats = await prisma.dashboardStats.findFirst({
-    where: { id: 1 },
-  });
 
     // Update dashboard stats
     await prisma.dashboardStats.upsert({
@@ -185,6 +183,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const whereClause: any = { userId }
     if (status) {
       whereClause.status = status
@@ -242,7 +241,6 @@ function combineDateAndTime(date: Date, time: string): Date {
   }
 
   // Format the time into HH:mm:ss
-  const time24 = `${hours24.toString().padStart(2, "0")}:${minutes}:00`;
 
    
    const combinedDateTime = new Date(year, month - 1, day, hours24, parseInt(minutes, 10));
@@ -466,9 +464,6 @@ async function updateDashboardStats(appointmentChange: number, revenueChange: nu
 
   const lastMonthRevenueValue = lastMonthRevenue._sum.fees || 0;
   // First get the current stats
-  const currentStats = await prisma.dashboardStats.findFirst({
-    where: { id: 1 },
-  });
   await prisma.dashboardStats.upsert({
     where: { id: 1 },
     update: {

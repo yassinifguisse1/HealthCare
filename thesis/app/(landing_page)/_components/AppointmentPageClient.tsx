@@ -62,16 +62,7 @@ export default function AppointmentPageClient() {
     return <LoadingSkeleton />
   }
 
-  
-  // if (error) {
-  //   return (
-  //     <div className="flex min-h-[calc(100vh-70px-4rem)] pt-[70px] items-center justify-center">
-  //       <p className="text-center text-muted-foreground">
-  //         Failed to load doctors. Please check your internet connection and try again.
-  //       </p>
-  //     </div>
-  //   )
-  // }
+
 
   return (
     <SidebarProvider
@@ -141,14 +132,4 @@ function LoadingSkeleton() {
   )
 }
 
-function ErrorMessage({ message }: { message: string }) {
-  return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-theme(spacing.32)-theme(spacing.16))]">
-    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-      <strong className="font-bold">Error: </strong>
-      <span className="block sm:inline">{message}</span>
-    </div>
-  </div>
-  )
-}
 

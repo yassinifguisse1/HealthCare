@@ -1,9 +1,9 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 import { Speciality } from "@prisma/client"
-import { Stethoscope, Baby, Brain, Flower2, HeartPulse, Microscope, X, ArrowLeft } from 'lucide-react'
+import { Stethoscope, Baby, Brain, Flower2, HeartPulse, Microscope, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import React from "react"
 
@@ -29,7 +29,7 @@ export function AppointmentSidebar({
   onSpecialtyClick,
   onClearFilter,
 }: AppointmentSidebarProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const [isCollapsed] = React.useState(false)
   return (
     <Sidebar data-collapsed={isCollapsed} className="border-r h-[calc(100vh-70px)] top-[70px] bg-[#D3D3D3] text-black sticky" collapsible="icon">
 

@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { currentUser } from "@clerk/nextjs/server"
 import prisma from "@/lib/db"
 import { notFound } from "next/navigation"
 import { format } from "date-fns"

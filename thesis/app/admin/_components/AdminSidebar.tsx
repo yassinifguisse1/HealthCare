@@ -9,7 +9,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
 import { LayoutDashboard, Users, Settings, HelpCircle } from "lucide-react"
 import Link from "next/link"
@@ -18,7 +17,6 @@ import logoImage from "@/assets/images/logosaas.png"
 import type React from "react"
 
 export function AdminSidebar({ className }: React.HTMLAttributes<HTMLDivElement>) {
-  const { isMobile } = useSidebar()
 
   return (
     <Sidebar className={cn("border-r bg-[#D3D3D3] text-black", className)} collapsible="icon">

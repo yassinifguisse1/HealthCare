@@ -1,8 +1,7 @@
 "use client"
 
 import {  useEffect, useState } from "react"
-import { useAuth } from "@clerk/nextjs"
-import axios from "axios"
+
 import { format } from "date-fns"
 import { columns } from "./appointments-columns"
 import { DataTable } from "@/components/ui/data-table"
@@ -35,12 +34,11 @@ interface AppointmentsProps {
 export default function Appointments({ appointments, updateAppointmentStatus,refreshData }: AppointmentsProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageCount, setPageCount] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false)
-  const { getToken } = useAuth()
+
 
   useEffect(() => {
     setIsLoading(false)

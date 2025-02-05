@@ -1,52 +1,54 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-  } from "@/components/ui/chart"
-  import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
-  import { useAuth } from "@clerk/nextjs"
-  import axios from "axios"
-  import { Skeleton } from "@/components/ui/skeleton"
-import { useCallback, useEffect, useState } from "react"
-  
-  type AppointmentData = {
-    name: string
-    appointments: number
-  }
-  
-  const chartConfig = {
-    appointments: {
-      label: "Appointments",
-      color: "hsl(var(--chart-1))",
-    },
-  } satisfies ChartConfig
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
-  interface AppointmentsChartProps {
-    data: AppointmentData[]
-    refreshData: () => Promise<void>
-  }
-export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) {
-  
-  const [isLoading, setIsLoading] = useState(true)
-  const { getToken } = useAuth()
+type AppointmentData = {
+  name: string;
+  appointments: number;
+};
 
+const chartConfig = {
+  appointments: {
+    label: "Appointments",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
 
+interface AppointmentsChartProps {
+  data: AppointmentData[];
+  refreshData: () => Promise<void>;
+}
+export function AppointmentsChart({
+  data,
+  refreshData,
+}: AppointmentsChartProps) {
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const handleRefresh = async () => {
-      setIsLoading(true)
-      await refreshData()
-      setIsLoading(false)
-    }
-    handleRefresh()
-  }, [refreshData])
+      setIsLoading(true);
+      await refreshData();
+      setIsLoading(false);
+    };
+    handleRefresh();
+  }, [refreshData]);
 
-  
   if (isLoading) {
     return (
       <Card className="col-span-2 border-2">
@@ -58,7 +60,7 @@ export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) 
           <Skeleton className="h-[400px] w-full" />
         </CardContent>
       </Card>
-    )
+    );
   }
   return (
     <Card className=" border-2 w-fullq col-span-2">
@@ -92,7 +94,7 @@ export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) 
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-   
+
             <Bar dataKey="appointments" fill="#adfa1d" radius={[4, 4, 0, 0]}>
               <LabelList
                 dataKey="appointments"
@@ -108,4 +110,3 @@ export function AppointmentsChart({data, refreshData }: AppointmentsChartProps) 
     </Card>
   );
 }
-

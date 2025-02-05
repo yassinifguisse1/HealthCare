@@ -58,10 +58,10 @@ const ITEMS_PER_PAGE = 6
 export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [submittedRatings, setSubmittedRatings] = useState<{ [key: string]: boolean }>({})
+  const [submittedRatings] = useState<{ [key: string]: boolean }>({})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { userId, isLoaded, isSignedIn } = useAuth()
+  const {  isLoaded, isSignedIn } = useAuth()
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {

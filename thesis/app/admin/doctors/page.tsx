@@ -22,7 +22,7 @@ export default function DoctorManagementPage() {
 
 
 
-  const handleDoctorUpdated = (updatedDoctor: Doctor) => {
+  const handleDoctorUpdated = () => {
     // Refresh the doctors list
     fetchDoctors();
     // update the doctor in the list
