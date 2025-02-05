@@ -7,43 +7,38 @@ import axios from "axios"
 import { redirect } from "next/navigation"
 
 async function getAppointments() {
-  
-  const { getToken ,userId } = await auth()
-  if(!userId){
-    redirect('/sign-in')
+  const { getToken, userId } = await auth();
+  if (!userId) {
+    redirect("/sign-in");
   }
 
- 
-
   try {
-   
-
     const token = await getToken({ template: "TOKEN_Healthcare" });
-
     // Make sure we have a base URL
     // const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    
-    const response = await axios.get("/api/appointments", {
+
+    const response = await axios.get("http://localhost:3000/api/appointments", {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        'Cache-Control': 'no-store',
+        "Cache-Control": "no-store",
       },
-    })
-    
+    });
+    console.log(response);
+
     // Axios throws on 4xx/5xx responses, but let's add an explicit check
     if (response.status !== 200) {
-      throw new Error('Failed to fetch doctor')
+      throw new Error("Failed to fetch doctor");
     }
-    
-    return response.data
-} catch (error) {
+
+    return response.data;
+  } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Error fetching doctors:", error.message)
+      console.error("Error fetching doctors:", error.message);
     } else {
-      console.error("Error fetching doctort:", error)
+      console.error("Error fetching doctort:", error);
     }
-    return null
+    return null;
   }
 }
 function AppointmentsTableSkeleton() {
