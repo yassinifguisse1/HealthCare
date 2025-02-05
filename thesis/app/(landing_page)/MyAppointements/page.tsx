@@ -21,9 +21,9 @@ async function getAppointments() {
     const token = await getToken({ template: "TOKEN_Healthcare" });
 
     // Make sure we have a base URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    // const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     
-    const response = await axios.get(`${baseUrl}/api/appointments`, {
+    const response = await axios.get("/api/appointments", {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
