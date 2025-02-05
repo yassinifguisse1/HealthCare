@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import React from 'react'; // Import React
 import { ClerkProvider } from "@clerk/nextjs";
 import { EdgeStoreProvider } from '../lib/edgestore';
 import { Toaster } from "@/components/ui/sonner"
@@ -30,6 +31,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <ClerkProvider>
       <html lang="en">
