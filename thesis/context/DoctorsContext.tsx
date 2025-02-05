@@ -32,13 +32,13 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { getToken } = useAuth();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  // const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   const fetchDoctors = async () => {
     setIsLoading(true);
     try {
       const token = await getToken({ template: "TOKEN_Healthcare" });
-      const response = await axios.get(`${baseUrl}/api/doctor`, {
+      const response = await axios.get("/api/doctor", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addDoctor = async (newDoctor: Partial<Doctor>): Promise<Doctor> => {
     try {
       const token = await getToken({ template: "TOKEN_Healthcare" });
-      const response = await axios.post(`${baseUrl}/api/doctor`, newDoctor, {
+      const response = await axios.post("/api/doctor", newDoctor, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -75,7 +75,7 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateDoctor = async (id: string, updatedDoctor: Partial<Doctor>): Promise<Doctor> => {
     try {
       const token = await getToken({ template: "TOKEN_Healthcare" });
-      const response = await axios.put(`${baseUrl}/api/doctor/${id}`, updatedDoctor, {
+      const response = await axios.put(`/api/doctor/${id}`, updatedDoctor, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteDoctor = async (id: string) => {
     try {
       const token = await getToken({ template: "TOKEN_Healthcare" });
-      await axios.delete(`${baseUrl}/api/doctor/${id}`, {
+      await axios.delete(`/api/doctor/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -109,7 +109,7 @@ export const DoctorsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
      
       const token = await getToken({ template: "TOKEN_Healthcare" });
-      const response = await axios.get(`${baseUrl}/api/doctor/${id}`, {
+      const response = await axios.get(`/api/doctor/${id}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
