@@ -100,7 +100,6 @@ import { AppointmentsTable } from "../_components/appointments-table";
 import { useAuth } from "@clerk/nextjs";
 import axios from "axios";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function AppointmentsTableSkeleton() {
@@ -166,7 +165,7 @@ export default function AppointmentsPage() {
             <AppointmentsTable appointments={appointments} />
           ) : (
             <div className="text-center text-muted-foreground py-10">
-              You don't have any appointments right now.
+              You don&apos;t have any appointments right now.
             </div>
           )}
         </CardContent>
